@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+
+  <body>
+    <button onclick="evaluatePython()">Run</button>
+    <button onclick="location.reload()">Reset</button>
+
+    <div id=code-panel>
+    <button id="toggle-code-button">Show Code </button>
+      <div id="collapsible-code" class="collapse">
+        <pre id="code-content"></pre>
+      </div>
+    </div>
+
+    <div id="output-panel">
+      <button id="toggle-output-button">Show Output</button>
+
+      <div id="collapsible-output" >
+        <pre id="output-content"></pre>
+      </div>
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>
