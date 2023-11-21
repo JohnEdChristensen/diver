@@ -12,7 +12,8 @@ output.textContent = "Initializing...\n";
 // init Pyodide
 async function main() {
   let pyodide = await loadPyodide();
-  output.textContent += "Ready!\n";
+  await pyodide.loadPackage("numpy")
+  output.textContent += "Python is Ready!\n";
   return pyodide;
 }
 let pyodideReadyPromise = main();

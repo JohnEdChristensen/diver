@@ -1,23 +1,24 @@
-
 /* Everforest Basic Theme Colors */
 :root {
   --background-color: #2b3339; /* Everforest background */
   --text-color: #d3c6aa; /* Everforest text */
-  --button-color: #425047; 
-  --button-hover-color: #A7C080; 
-  --border-color: #7A8478; /* Border color for inputs and buttons */
-  --panel-color: #3D484D;
-  --panel-border: #7A8478;
-
+  --button-color: #425047;
+  --button-hover-color: #a7c080;
+  --border-color: #7a8478; /* Border color for inputs and buttons */
+  --panel-color: #3d484d;
+  --panel-border: #7a8478;
 }
 
 body {
   background-color: var(--background-color);
   color: var(--text-color);
-  font-family: 'Fira Code', monospace; /* or your preferred font */
+  font-family: "Fira Code", monospace; /* or your preferred font */
+  font-size: 14px;
 }
 
-button, input[type="button"], input[type="submit"] {
+button,
+input[type="button"],
+input[type="submit"] {
   background-color: var(--button-color);
   color: var(--text-color);
   border: 1px solid var(--border-color);
@@ -28,61 +29,69 @@ button, input[type="button"], input[type="submit"] {
   margin: 5px;
 }
 
-button:hover, input[type="button"]:hover, input[type="submit"]:hover {
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
   background-color: var(--button-hover-color);
-  color: var(--background-color)
+  color: var(--background-color);
 }
 
 /* none theme:*/
 
-#code-panel{
+#code-panel {
   position: fixed;
-  max-width:40%;
-  right:0;
-  bottom:0;
-  top:0; 
-  display:flex;
+  max-width: 40%;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  display: flex;
   flex-direction: row;
-  align-items:center;
+  align-items: center;
 }
-#collapsible-code{
+#collapsible-code {
   overflow: auto;
-  width:100%;
-  height:100%;
+  min-width: 400px;
+  width: 100%;
+  height: 100%;
   padding: 5px;
   background: var(--panel-color);
   border: 1px solid var(--panel-border);
 }
-#collapsible-code.collapse{
+#collapsible-code.collapse {
   padding: 0;
-  width:0;
+  width: 0;
 }
 
-#output-panel{
+#output-panel {
   position: fixed;
-  max-height:30%;
-  left:0;
-  right:0;
-  bottom:0;
+  max-height: 30%;
+  width: 100%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
-#collapsible-output{
-  height:100%;
+#collapsible-output {
+  height: 100%;
+  width: 100%;
   overflow: auto;
   padding: 5px;
   background: var(--panel-color);
   border: 1px solid var(--panel-border);
 }
-#collapsible-output.collapse{
-  height:0;
+#collapsible-output.collapse {
+  height: 0;
   padding: 0;
 }
 
 #collapsible-area {
   position: fixed; /*not sure exactly how this workds*/
-  right:0;
-  top:0;
-  bottom:0;
-  width:30%;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 30%;
   background: #ddd;
   border-left: 1 px solid #ccc;
   overflow: auto;
@@ -98,8 +107,8 @@ pre {
   word-wrap: break-word;
 }
 
-#toggle-button{
+#toggle-button {
   margin: 10px;
   padding: 5px 10px;
-  float:right;
+  float: right;
 }
