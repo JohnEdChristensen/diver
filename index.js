@@ -1,37 +1,49 @@
+
 const output = document.getElementById("output-content");
 const code = document.getElementById("code-content");
+output.textContent = "Initializing...\n";
+let diver = ""
 
-function addToOutput(s,showCode) {
-  if(showCode){
-  output.textContent += ">>>" + code.textContent + "\n";
+function addToOutput(s, showCode) {
+  if (showCode) {
+    output.textContent += ">>>" + code.textContent + "\n";
   }
   output.textContent += s + "\n";
 }
-
-output.textContent = "Initializing...\n";
 // init Pyodide
 async function main() {
   let pyodide = await loadPyodide();
   await pyodide.loadPackage("numpy")
+  await pyodide.loadPackage("numpy")
+  // install diver
+  try {
+    let output = pyodide.runPython(diver);
+    console.log("installed diver")
+    console.log(diver)
+  } catch (err) {
+    console.log("error installing diver")
+    console.log(diver)
+    console.log(err)
+  }
   output.textContent += "Python is Ready!\n";
   return pyodide;
 }
 let pyodideReadyPromise = main();
 
 async function evaluatePython() {
-    addToOutput("Running Python...",false)
+  addToOutput("Running Python...", false)
   let pyodide = await pyodideReadyPromise;
   try {
     let output = pyodide.runPython(code.textContent);
-    addToOutput(output,false);
+    addToOutput(output, false);
   } catch (err) {
-    addToOutput(err,true);
+    addToOutput(err, true);
   }
 }
 
 
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
   // side toggle
   const codeContent = document.getElementById('code-content');
   const toggleCodeButton = document.getElementById('toggle-code-button');
@@ -61,8 +73,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  fetch('./main.py') // Adjust the path as necessary
+  fetch('./diver_loader.py')
+    .then(response => response.text())
+    .then(text => diver = text)
+    .catch(error => console.error('Error fetching the file:', error))
+
+  fetch('./draw.py')
     .then(response => response.text())
     .then(text => codeContent.textContent = text)
     .catch(error => console.error('Error fetching the file:', error));
+
 });
