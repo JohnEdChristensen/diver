@@ -1,0 +1,3 @@
+_pyodide
+pyodide
+webbrowser
