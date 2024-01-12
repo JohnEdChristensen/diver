@@ -100,25 +100,25 @@ document.addEventListener('DOMContentLoaded', function() {
   loadSketch()
 });
 
-function reloadDiver() {
+async function reloadDiver() {
   addToOutput("Diver src changed, reloading...", false);
-  loadDiver();
+  await loadDiver();//make sure file is loaded before continouing!
   main();
 }
-function reloadSketch() {
+async function reloadSketch() {
   addToOutput("Sketch src changed, reloading...", false);
-  loadSketch();
+  await loadSketch();
   evaluatePython();
 }
-function loadDiver() {
-  fetch('./diver.py')
+async function loadDiver() {
+  await fetch('./diver.py')
     .then(response => response.text())
     .then(text => diver = text)
     .catch(error => console.error('Error fetching the file:', error))
 }
-function loadSketch() {
+async function loadSketch() {
   const codeContent = document.getElementById('code-content');
-  fetch('./draw.py')
+  await fetch('./draw.py')
     .then(response => response.text())
     .then(text => codeContent.textContent = text)
     .catch(error => console.error('Error fetching the file:', error));
