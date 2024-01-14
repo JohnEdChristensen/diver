@@ -18,6 +18,9 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "browser-sync": "^3.0.2"
+    "@codemirror/lang-python": "github:codemirror/lang-python",
+    "@codemirror/theme-one-dark": "github:codemirror/theme-one-dark",
+    "browser-sync": "^3.0.2",
+    "codemirror": "^6.0.1"
   }
 }

@@ -22,11 +22,11 @@ input[type="submit"] {
   background-color: var(--button-color);
   color: var(--text-color);
   border: 1px solid var(--border-color);
-  padding: 0.5em 1em;
+  padding: 0.25em .5em;
   cursor: pointer;
   font-family: inherit;
-  border-radius: 5px;
-  margin: 5px;
+  border-radius: 3px;
+  margin: 3px;
 }
 
 button:hover,
@@ -35,43 +35,42 @@ input[type="submit"]:hover {
   background-color: var(--button-hover-color);
   color: var(--background-color);
 }
-
 /* none theme:*/
-
 #code-panel {
+  height: 100%;
   position: fixed;
-  max-width: 40%;
-  right: 0;
-  bottom: 0;
   top: 0;
+  right:0;
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 #collapsible-code {
   overflow: auto;
-  min-width: 400px;
   width: 100%;
+  max-width: 98vw;
   height: 100%;
-  padding: 5px;
   background: var(--panel-color);
   border: 1px solid var(--panel-border);
 }
 #collapsible-code.collapse {
+  visibility: hidden;
   padding: 0;
   width: 0;
+  min-width:0;
 }
 
 #output-panel {
-  position: fixed;
+  overflow:auto;
   max-height: 30%;
-  width: 100%;
+  width:100%;
+  position: fixed;
+  bottom:0;
   left: 0;
-  right: 0;
-  bottom: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  z-index: -1;
 }
 #collapsible-output {
   height: 100%;
@@ -87,7 +86,7 @@ input[type="submit"]:hover {
 }
 
 #collapsible-area {
-  position: fixed; /*not sure exactly how this workds*/
+  position: fixed; /*not sure exactly how this works*/
   right: 0;
   top: 0;
   bottom: 0;

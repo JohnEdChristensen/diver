@@ -1,14 +1,17 @@
+import {createEditor, setEditorText, getEditorText} from './editor.js'
 
+const codeEditor = createEditor("");
 const output = document.getElementById("output-content");
-const code = document.getElementById("code-content");
 output.textContent = "Initializing...\n";
 let diver = ""
 
 function addToOutput(s, showCode) {
   if (showCode) {
-    output.textContent += ">>>" + code.textContent + "\n";
+    output.textContent += ">>>" + getEditorText(codeEditor) + "\n";
   }
   output.textContent += s + "\n";
+  const scroller = document.getElementById("collapsible-output");
+  scroller.scrollTo(0,output.scrollHeight);
 }
 // init Pyodide
 async function main() {
@@ -18,7 +21,7 @@ async function main() {
   await pyodide.loadPackage("numpy")
   // install diver
   try {
-    install_diver_py =
+    let install_diver_py =
       `
 # https://pyodide.org/en/stable/usage/loading-custom-python-code.html#from-python
 # Downloading a single file
@@ -60,7 +63,7 @@ async function evaluatePython() {
 
 async function runPython(pyodide) {
   try {
-    let output = await pyodide.runPythonAsync(code.textContent);
+    let output = await pyodide.runPythonAsync(getEditorText(codeEditor));
     addToOutput(output, false);
     console.log("Current Sketch Succeeded. Output(if any):" + output)
   } catch (err) {
@@ -71,6 +74,8 @@ async function runPython(pyodide) {
 
 document.addEventListener('DOMContentLoaded', function() {
   // side toggle
+  const runButton = document.getElementById('run-button');
+  runButton.addEventListener('click',evaluatePython())
   const toggleCodeButton = document.getElementById('toggle-code-button');
   const collapsibleCode = document.getElementById('collapsible-code');
 
@@ -79,8 +84,10 @@ document.addEventListener('DOMContentLoaded', function() {
     collapsibleCode.classList.toggle('collapse');
     if (collapsibleCode.classList.contains('collapse')) {
       toggleCodeButton.textContent = 'Show Code';
+      document.getElementById("code-container").style.visibility = "hidden"
     } else {
       toggleCodeButton.textContent = 'Hide Code';
+      document.getElementById("code-container").style.visibility = "visible"
     }
   });
   //bottom toggle
@@ -105,11 +112,13 @@ async function reloadDiver() {
   await loadDiver();//make sure file is loaded before continouing!
   main();
 }
+globalThis.reloadDiver = reloadDiver
 async function reloadSketch() {
   addToOutput("Sketch src changed, reloading...", false);
   await loadSketch();
   evaluatePython();
 }
+globalThis.reloadSketch = reloadSketch
 async function loadDiver() {
   await fetch('./diver.py')
     .then(response => response.text())
@@ -117,9 +126,8 @@ async function loadDiver() {
     .catch(error => console.error('Error fetching the file:', error))
 }
 async function loadSketch() {
-  const codeContent = document.getElementById('code-content');
   await fetch('./draw.py')
     .then(response => response.text())
-    .then(text => codeContent.textContent = text)
+    .then(text =>  setEditorText(codeEditor,text))
     .catch(error => console.error('Error fetching the file:', error));
 }

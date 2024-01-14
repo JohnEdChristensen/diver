@@ -7,26 +7,25 @@
 </head>
 
 <body>
-  <button onclick="evaluatePython()">Run</button>
+  <button id="run-button">Run</button>
   <button onclick="location.reload()">Reset</button>
-
   <div id=code-panel>
     <button id="toggle-code-button">Show Code </button>
     <div id="collapsible-code" class="collapse">
-      <pre id="code-content"></pre>
+      <div id="code-container"></div>
     </div>
   </div>
 
   <div id="output-panel">
-    <button id="toggle-output-button">Show Output</button>
 
-    <div id="collapsible-output">
+    <button id="toggle-output-button">Show Output</button>
+    <div id="collapsible-output" class="collapse">
       <pre id="output-content"></pre>
     </div>
   </div>
   <div id=python-canvas-container>
   </div>
-  <script src="index.js"></script>
+  <script type="module"  src="index.js"></script>
 </body>
 
 </html>
