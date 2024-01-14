@@ -27,6 +27,8 @@ input[type="submit"] {
   font-family: inherit;
   border-radius: 3px;
   margin: 3px;
+  z-index: 2;
+  position: relative;
 }
 
 button:hover,
@@ -43,7 +45,7 @@ input[type="submit"]:hover {
   right:0;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
 }
 #collapsible-code {
   overflow: auto;
@@ -69,16 +71,15 @@ input[type="submit"]:hover {
   left: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   z-index: -1;
 }
 #collapsible-output {
   height: 100%;
-  width: 100%;
   overflow: auto;
   padding: 5px;
   background: var(--panel-color);
-  border: 1px solid var(--panel-border);
+  border: 0px solid var(--panel-border);
 }
 #collapsible-output.collapse {
   height: 0;
@@ -106,8 +107,6 @@ pre {
   word-wrap: break-word;
 }
 
-#toggle-button {
-  margin: 10px;
-  padding: 5px 10px;
-  float: right;
+#toggle-output-button {
+  align-self: flex-start;
 }

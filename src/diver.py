@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, List, cast,Any
+from typing import Callable, List, cast,Any,Tuple
 
 import numpy as np
 from js import (
@@ -11,6 +11,7 @@ from js import (
 )
 from pyodide.ffi import create_proxy
 
+currentCanvasManager = None
 
 @dataclass
 class Color:
@@ -23,11 +24,16 @@ class Color:
 class Image:
     width: int
     height: int
-    pixels: List[List[Color]]
+    pixels: List[List[Tuple[int,int,int,int]]]
 
 
 class CanvasManager:
     def __init__(self, animate_func):
+        global currentCanvasManager
+        #currently only supports one loop
+        if currentCanvasManager is not None:
+            currentCanvasManager.cancelAnimationLoop()
+        currentCanvasManager = self
         print("hello from CanvasManager, ('diver.py')")
         self.animate_func = animate_func
         self.animate_loop_proxy = create_proxy(self.animate_loop)
@@ -44,7 +50,8 @@ class CanvasManager:
     # animation info
 
     def start(self):
-        window.cancelAnimationFrame(self.last_frame_id)
+        # make sure if we have already started a loop, that it gets stopped
+        self.cancelAnimationLoop()
         # a proxy is necessary to pass a python function to js
         # this starts the animation (and keeps track of the current frame)
         self.last_frame_id = window.requestAnimationFrame(
@@ -56,44 +63,52 @@ class CanvasManager:
         self.last_frame_id = window.requestAnimationFrame(
             self.animate_loop_proxy
         )
+    def cancelAnimationLoop(self):
+        window.cancelAnimationFrame(self.last_frame_id)
 
-    def clear_screen(self, image: Image, color: Color) -> None:
+    def clear_screen(self, image: Image, c: Color) -> None:
         for y in range(image.height):
             for x in range(image.width):
-                image.pixels[y][x] = color
+                image.pixels[y][x] = (c.r,c.g,c.b,255)
 
-    def draw_pixel(self, image: Image, x: int, y: int, color: Color) -> None:
+    def draw_pixel(self, image: Image, x: int, y: int, c: Color) -> None:
         if 0 <= x < image.width and 0 <= y < image.height:
-            image.pixels[y][x] = color
+            image.pixels[y][x] = (c.r,c.g,c.b,255)
 
     def create_image(
-        self, width: int, height: int, background_color: Color
+        self, width: int, height: int, bc: Color
     ) -> Image:
         return Image(
             width,
             height,
             # [[Color(0,0,0) for _ in range(width)] for _ in range(height)],
-            [[background_color for _ in range(width)] for _ in range(height)],
+            [[(bc.r,bc.g,bc.b,255) for _ in range(width)] for _ in range(height)],
         )
 
-    def draw_image(self, image: Image):
+    def draw_image(self, image: Image,scale_factor:int):
         canvas = self.canvas
-        height = image.height
-        width = image.width
-        numpy_image = np.zeros((height, width, 4), dtype=np.uint8)
+        
+        numpy_image = np.array(image.pixels,dtype=np.uint8) 
+        scaled_image = np.repeat(numpy_image, scale_factor, axis=0)
+        scaled_image = np.repeat(scaled_image, scale_factor, axis=1)
+        # for y in range(final_height):
+        #     for x in range(final_width):
+        #         original_y = int(y/scale)
+        #         original_x = int(x/scale)
+        #         c = image.pixels[original_y][original_x]
+        #         # Assuming the alpha channel is always 255 (fully opaque)
+        #         numpy_image[y, x] = c
 
-        for y in range(height):
-            for x in range(width):
-                c = image.pixels[y][x]
-                # Assuming the alpha channel is always 255 (fully opaque)
-                numpy_image[y, x] = [c.r, c.g, c.b, 255]
-
-        h, w, d = numpy_image.shape
-        numpy_image = np.ravel(
-            np.uint8(np.reshape(numpy_image, (h * w * d, -1)))
+        h, w, d = scaled_image.shape
+        #update this incase it has changed
+        #print(h,w,d)
+        self.canvas.width = w
+        self.canvas.height = h
+        scaled_image = np.ravel(
+            np.uint8(np.reshape(scaled_image, (h * w * d, -1)))
         ).tobytes()
 
-        pixels_proxy = create_proxy(numpy_image)
+        pixels_proxy = create_proxy(scaled_image)
         pixels_buf = pixels_proxy.getBuffer("u8clamped")
         img_data = ImageData.new(pixels_buf.data, w, h)
 

@@ -1,22 +1,26 @@
-import {createEditor, setEditorText, getEditorText} from './editor.js'
+import { createEditor, setEditorText, getEditorText } from './editor.js'
 
 const codeEditor = createEditor("");
 const output = document.getElementById("output-content");
 output.textContent = "Initializing...\n";
-let diver = ""
+let diver = "";
+let pyodide = null;
 
 function addToOutput(s, showCode) {
   if (showCode) {
     output.textContent += ">>>" + getEditorText(codeEditor) + "\n";
   }
-  output.textContent += s + "\n";
+  console.log(s)
+  if (s != undefined) {
+    output.textContent += s + "\n";
+  }
   const scroller = document.getElementById("collapsible-output");
-  scroller.scrollTo(0,output.scrollHeight);
+  scroller.scrollTo(0, output.scrollHeight);
 }
 // init Pyodide
 async function main() {
   console.log("Loading Pyodide")
-  let pyodide = await loadPyodide();
+  pyodide = await loadPyodide();
   console.log("Loading Numpy")
   await pyodide.loadPackage("numpy")
   // install diver
@@ -40,7 +44,7 @@ importlib.invalidate_caches() # Make sure Python notices the new .py file
     console.log("Loading Diver")
     //console.log(install_diver_py)
     let output = pyodide.runPython(install_diver_py);
-    console.log("Installed diver. Output (if any):",output)
+    console.log("Installed diver. Output (if any):", output)
   } catch (err) {
     console.log("Error installing diver")
     console.log(diver)
@@ -58,12 +62,13 @@ async function evaluatePython() {
   addToOutput("Running Python ad hoc...", false)
   console.log("Running Python ad hoc...")
   console.log("Running Current Sketch")
-  runPython(pyodideReadyPromise)
+  runPython(pyodide)
 }
 
 async function runPython(pyodide) {
   try {
     let output = await pyodide.runPythonAsync(getEditorText(codeEditor));
+    addToOutput("Sketch Ran Successfully", false);
     addToOutput(output, false);
     console.log("Current Sketch Succeeded. Output(if any):" + output)
   } catch (err) {
@@ -75,7 +80,7 @@ async function runPython(pyodide) {
 document.addEventListener('DOMContentLoaded', function() {
   // side toggle
   const runButton = document.getElementById('run-button');
-  runButton.addEventListener('click',evaluatePython)
+  runButton.addEventListener('click', evaluatePython)
   const toggleCodeButton = document.getElementById('toggle-code-button');
   const collapsibleCode = document.getElementById('collapsible-code');
 
@@ -128,6 +133,6 @@ async function loadDiver() {
 async function loadSketch() {
   await fetch('./draw.py')
     .then(response => response.text())
-    .then(text =>  setEditorText(codeEditor,text))
+    .then(text => setEditorText(codeEditor, text))
     .catch(error => console.error('Error fetching the file:', error));
 }
