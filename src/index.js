@@ -40,7 +40,7 @@ importlib.invalidate_caches() # Make sure Python notices the new .py file
     console.log("Loading Diver")
     //console.log(install_diver_py)
     let output = pyodide.runPython(install_diver_py);
-    console.log("Installed diver")
+    console.log("Installed diver. Output (if any):",output)
   } catch (err) {
     console.log("Error installing diver")
     console.log(diver)
@@ -55,10 +55,10 @@ importlib.invalidate_caches() # Make sure Python notices the new .py file
 let pyodideReadyPromise = main();
 
 async function evaluatePython() {
-  addToOutput("Running Python...", false)
+  addToOutput("Running Python ad hoc...", false)
+  console.log("Running Python ad hoc...")
   console.log("Running Current Sketch")
-  let pyodide = await pyodideReadyPromise;
-  runPython(pyodide)
+  runPython(pyodideReadyPromise)
 }
 
 async function runPython(pyodide) {
@@ -75,7 +75,7 @@ async function runPython(pyodide) {
 document.addEventListener('DOMContentLoaded', function() {
   // side toggle
   const runButton = document.getElementById('run-button');
-  runButton.addEventListener('click',evaluatePython())
+  runButton.addEventListener('click',evaluatePython)
   const toggleCodeButton = document.getElementById('toggle-code-button');
   const collapsibleCode = document.getElementById('collapsible-code');
 

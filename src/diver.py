@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, List, cast
+from typing import Callable, List, cast,Any
 
 import numpy as np
 from js import (
@@ -28,8 +28,9 @@ class Image:
 
 class CanvasManager:
     def __init__(self, animate_func):
+        print("hello from CanvasManager, ('diver.py')")
         self.animate_func = animate_func
-        self.animate_loop_proxy = create_proxy(animate_func)
+        self.animate_loop_proxy = create_proxy(self.animate_loop)
         self.canvas = cast(HTMLCanvasElement, document.getElementById("myCanv"))
         if self.canvas is None:
             print("Existing canvas not found, attempting to create new one")
@@ -38,22 +39,20 @@ class CanvasManager:
         self.ctx = cast(CanvasRenderingContext2D, self.canvas.getContext("2d"))
         self.last_frame_id = 0
         self.start_time = 0
-        self.start(self.animate_func)  # TODO don't pass this
+        self.start()
 
     # animation info
 
-    def start(self, sketch_renderer: Callable[[float], None]):
+    def start(self):
         window.cancelAnimationFrame(self.last_frame_id)
         # a proxy is necessary to pass a python function to js
-        self.animate_func = sketch_renderer
-
         # this starts the animation (and keeps track of the current frame)
         self.last_frame_id = window.requestAnimationFrame(
             self.animate_loop_proxy
         )
 
     def animate_loop(self, frame_time_mili):
-        self.animate_func(frame_time_mili)
+        self.animate_func(self,frame_time_mili)
         self.last_frame_id = window.requestAnimationFrame(
             self.animate_loop_proxy
         )
@@ -98,26 +97,6 @@ class CanvasManager:
         pixels_buf = pixels_proxy.getBuffer("u8clamped")
         img_data = ImageData.new(pixels_buf.data, w, h)
 
-        # if canvas is None:
-        #     # try getting existing canvas if it exists
-        #     canvas = cast(HTMLCanvasElement, document.getElementById("myCanv"))
-        #     if canvas is None:
-        #         print(
-        #             "Existing canvas not found, attempting to create new one"
-        #         )
-        #         canvas = cast(
-        #             HTMLCanvasElement, document.createElement("canvas")
-        #         )
-        #         canvas.id = "myCanv"  # TODO clean up names to disambiguate
-        #     ctx = cast(CanvasRenderingContext2D, canvas.getContext("2d"))
-        #
-        # if ctx is None:
-        #     ctx = cast(CanvasRenderingContext2D, canvas.getContext("2d"))
-        #
-        # # update the size
-        # canvas.width = w
-        # canvas.height = h
-        # rendering the ImageData object onto a canvas element
         self.ctx.putImageData(img_data, 0, 0)
         self.ctx.drawImage(canvas, 0, 0)
 
