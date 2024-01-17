@@ -1,41 +1,35 @@
 from diver import CanvasManager, Color
 import math as m
-from js import window
-from pyodide.ffi import create_proxy
 
-WIDTH =128 
+WIDTH =1024 
 HEIGHT = WIDTH 
 print("hello from draw.py")
-background_color = Color(43, 51, 57) #2b3339
 
 
-red = Color(255, 0, 0) #ff0000
-orange = Color(255, 165, 0) #ffa500
-yellow = Color(255, 255, 0) #ffff00
-green = Color(0, 128, 0) #008000
-blue = Color(0, 0, 255) #0000ff
-indigo = Color(75, 0, 130) #4b0082
-violet = Color(238, 130, 238) #ee82ee
-
-colors = [red,orange,yellow,green,blue,indigo,violet]
-colors.reverse()
 
 def update(self: CanvasManager,t):
-    img = self.create_image(WIDTH, HEIGHT, background_color)
-    #print(t)
-    for i,color in enumerate(colors):
-        for x in range(WIDTH):
-            y = m.sin(20 * x / (HEIGHT) - t/1000 * 4)
-            y_scale = m.sin(x/WIDTH * m.pi)
-            y= y*y_scale
-            y = y * HEIGHT / 5
-            y = y + HEIGHT / 2
-            y = int(y)
-            color_width = 6
-            y = y-(i*(color_width-1))
-            for j in range(color_width-1):
-                self.draw_pixel(img, x, y-j,color)
+    canvas = self.canvas
+    ctx = self.ctx
+    canvas.width=WIDTH
+    canvas.height=HEIGHT
+    w,h=WIDTH,HEIGHT
+    
+    def draw_square(size):
+        ctx.strokeRect(-size,-size,size*2,size*2)
+         
+    
+    ctx.clearRect(0,0,canvas.width,canvas.height)
+     
+    ctx.save()
+    ctx.strokeStyle = "#d3c6aa"
+    ctx.translate(w * 0.5, h * 0.5)
+    rotate_angle = t/1000
+    ctx.rotate(rotate_angle)
+    ctx.lineWidth = 2
+    for i in range(1,20):
+        ctx.rotate((m.pi/32 * m.sin(rotate_angle)))
+        draw_square(15* (i+m.sin(.3*i*rotate_angle + m.pi/4)))
+    ctx.restore()
 
-    self.draw_image(img,4)
 
 canvasManager = CanvasManager(update)

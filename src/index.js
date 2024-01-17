@@ -4,6 +4,8 @@ const codeEditor = createEditor("");
 const output = document.getElementById("output-content");
 output.textContent = "Initializing...\n";
 let diver = "";
+
+//@type{PyodideAPI}
 let pyodide = null;
 
 function addToOutput(s, showCode) {
@@ -19,10 +21,11 @@ function addToOutput(s, showCode) {
 }
 // init Pyodide
 async function main() {
-  console.log("Loading Pyodide")
+  console.log("Loading pyodide")
   pyodide = await loadPyodide();
-  console.log("Loading Numpy")
-  await pyodide.loadPackage("numpy")
+  await pyodide.loadPackage("micropip");//install mircopip to install other packages
+  const micropip = pyodide.pyimport("micropip");
+  await micropip.install("numpy");
   // install diver
   try {
     let install_diver_py =
@@ -53,10 +56,8 @@ importlib.invalidate_caches() # Make sure Python notices the new .py file
   output.textContent += "Python is Ready!\n";
   //run the inital code example for the first time
   console.log("Running Initial Sketch")
-  await runPython(pyodide)
-  return pyodide;
+  await runPython()
 }
-let pyodideReadyPromise = main();
 
 async function evaluatePython() {
   addToOutput("Running Python ad hoc...", false)
@@ -65,9 +66,12 @@ async function evaluatePython() {
   runPython(pyodide)
 }
 
-async function runPython(pyodide) {
+async function runPython() {
   try {
-    let output = await pyodide.runPythonAsync(getEditorText(codeEditor));
+    let pyCode = getEditorText(codeEditor)
+    //this should work to dynamically install packages, but it isn't... I'll manuall install for now.
+    // await pyodide.loadPackagesFromImports(pyCode,{messageCallback : (m)=>{console.log(m)}})
+    let output = await pyodide.runPythonAsync(pyCode);
     addToOutput("Sketch Ran Successfully", false);
     addToOutput(output, false);
     console.log("Current Sketch Succeeded. Output(if any):" + output)
@@ -115,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
 async function reloadDiver() {
   addToOutput("Diver src changed, reloading...", false);
   await loadDiver();//make sure file is loaded before continouing!
+  pyodide.
   main();
 }
 globalThis.reloadDiver = reloadDiver
@@ -136,3 +141,5 @@ async function loadSketch() {
     .then(text => setEditorText(codeEditor, text))
     .catch(error => console.error('Error fetching the file:', error));
 }
+
+main();
