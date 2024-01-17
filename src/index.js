@@ -20,8 +20,10 @@ function addToOutput(s, showCode) {
   const scroller = document.getElementById("collapsible-output");
   scroller.scrollTo(0, output.scrollHeight);
 }
+
 // init Pyodide
 async function main() {
+  startLoadingIndicator();
   console.log("Loading pyodide")
   pyodide = await loadPyodide();
   await pyodide.loadPackage("numpy");//TODO remove numpy dependancy,figure otu dynamic imports
@@ -58,6 +60,7 @@ importlib.invalidate_caches() # Make sure Python notices the new .py file
   output.textContent += "Python is Ready!\n";
   //run the inital code example for the first time
   console.log("Running Initial Sketch")
+  stopLoadingIndicator();
   await runPython()
 }
 
@@ -81,6 +84,12 @@ async function runPython() {
     addToOutput(err, true);
     console.log("Current Sketch Failed. Output(if any):" + output)
   }
+}
+function startLoadingIndicator(){
+  document.querySelector('.loader').style.display = 'block';
+}
+function stopLoadingIndicator(){
+  document.querySelector('.loader').style.display = 'none';
 }
 
 document.addEventListener('DOMContentLoaded', function() {

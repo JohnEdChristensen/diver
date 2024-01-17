@@ -29,7 +29,9 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_GET(self):
+        self.path = self.path.split('?')[0]
         # Check if the requested path is an HTML file or root
+        print(self.path)
         if self.path.endswith(".html") or self.path == "/":
             self.path = "/index.html" if self.path == "/" else self.path
             file_path = src_dir / self.path.strip("/")
