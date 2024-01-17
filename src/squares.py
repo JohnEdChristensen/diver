@@ -1,4 +1,4 @@
-from diver import CanvasManager, Color
+from diver import CanvasManager
 import math as m
 
 WIDTH =1024 

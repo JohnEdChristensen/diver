@@ -74,9 +74,11 @@ class CanvasManager:
         if self.start_time == 0:
             self.start_time = frame_time_mili
         else:
-            self.frame_rate = 1000 / (frame_time_mili - self.last_frame_time)
-            if self.frame_count % 100 == 0:
-                print(self.frame_rate)
+            #TODO better way of handling div by zero?
+            if(frame_time_mili != self.last_frame_time):
+                self.frame_rate = 1000 / (frame_time_mili - self.last_frame_time)
+                if self.frame_count % 100 == 0:
+                    print(self.frame_rate)
         self.last_frame_time = frame_time_mili
         self.frame_count += 1
 
@@ -130,13 +132,3 @@ class CanvasManager:
         pixels_buf.release()
         return "Created Image", w, h
 
-
-# Example usage
-# background_color = Color(1, 128, 128)
-# img = create_image(100, 100, background_color)
-# Clear the screen with the background color
-# clear_screen(img, background_color)
-# draw_pixel(img, 10, 10, Color(255, 0, 0))  # Draw a red pixel at (10, 10)
-#
-#
-# draw_image(img)

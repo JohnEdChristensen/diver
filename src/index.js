@@ -6,6 +6,7 @@ output.textContent = "Initializing...\n";
 let diver = "";
 
 //@type{PyodideAPI}
+// let pyodide = await loadPyodide();
 let pyodide = null;
 
 function addToOutput(s, showCode) {
@@ -23,9 +24,10 @@ function addToOutput(s, showCode) {
 async function main() {
   console.log("Loading pyodide")
   pyodide = await loadPyodide();
-  await pyodide.loadPackage("micropip");//install mircopip to install other packages
-  const micropip = pyodide.pyimport("micropip");
-  await micropip.install("numpy");
+  await pyodide.loadPackage("numpy");//TODO remove numpy dependancy,figure otu dynamic imports
+  // await pyodide.loadPackage("micropip");//install mircopip to install other packages
+  // const micropip = pyodide.pyimport("micropip");
+  // await micropip.install("numpy");
   // install diver
   try {
     let install_diver_py =
@@ -118,9 +120,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function reloadDiver() {
   addToOutput("Diver src changed, reloading...", false);
-  await loadDiver();//make sure file is loaded before continouing!
-  pyodide.
-  main();
+  // await loadDiver();//make sure file is loaded before continouing!
+  // pyodide.setInterruptBuffer;
+  // main();
+  window.location.reload();
 }
 globalThis.reloadDiver = reloadDiver
 async function reloadSketch() {
@@ -136,10 +139,20 @@ async function loadDiver() {
     .catch(error => console.error('Error fetching the file:', error))
 }
 async function loadSketch() {
-  await fetch('./draw.py')
+  let fileName = getFileFromURL()??'./draw.py'
+
+  await fetch(fileName)
     .then(response => response.text())
     .then(text => setEditorText(codeEditor, text))
     .catch(error => console.error('Error fetching the file:', error));
 }
+function getFileFromURL(){
+  const currentUrl = window.location.href;
+  const url = new URL(currentUrl);
+  const params = new URLSearchParams(url.search);
 
+  //example URL "https://domain.com/page?filename=myfile.txt"
+  const fileName = params.get('filename'); // This would be 'myfile.txt'
+  return fileName
+}
 main();
