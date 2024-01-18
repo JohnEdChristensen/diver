@@ -60,7 +60,7 @@ importlib.invalidate_caches() # Make sure Python notices the new .py file
   output.textContent += "Python is Ready!\n";
   //run the inital code example for the first time
   console.log("Running Initial Sketch")
-  stopLoadingIndicator();
+    stopLoadingIndicator();
   await runPython()
 }
 

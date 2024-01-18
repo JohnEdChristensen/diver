@@ -78,7 +78,8 @@ class CanvasManager:
             if(frame_time_mili != self.last_frame_time):
                 self.frame_rate = 1000 / (frame_time_mili - self.last_frame_time)
                 if self.frame_count % 10 == 0:
-                    print(self.frame_rate)
+                    ...
+                    #print(self.frame_rate)
         self.last_frame_time = frame_time_mili
         self.frame_count += 1
 

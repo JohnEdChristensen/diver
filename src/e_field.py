@@ -3,7 +3,7 @@ import math as m
 from dataclasses import dataclass
 from typing import Tuple
 
-WIDTH = 64
+WIDTH = 32 
 HEIGHT = WIDTH
 print("hello from draw.py")
 
@@ -22,13 +22,12 @@ def update(self: CanvasManager, t):
 
     for x in range(HEIGHT):
         for y in range(WIDTH):
-
             #update
             scale = .005
             p1.x = p1.x +  scale * m.cos(t/1000)
             p1.y = p1.y +  scale * m.sin(t/1000)
+            p2.x = p2.x +  scale * m.sin(t/1000)
             p2.y = p2.y +  scale * m.cos(t/1000)
-            p2.y = p2.y +  scale * m.sin(t/1000)
 
             #calculate
             pixel_p1_distance = p1.distance(x, y)

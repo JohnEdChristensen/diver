@@ -1,4 +1,13 @@
-#Diver
+# Diver
+**Work in progress :)**
+
+## Examples
+Live Examples:
+- https://johnedchristensen.github.io/diver/src/?filename=e_field.py
+- https://johnedchristensen.github.io/diver/src/?filename=draw_rainbow.py
+- https://johnedchristensen.github.io/diver/src/?filename=squares.py
+- https://johnedchristensen.github.io/diver/src/?filename=strings.py
+## About
 A simple python package that makes it easy to share interactive visuals on the web.
 Uses pyodide to run python directly in the browser, meaning code can be shared with others without any need to download/install/configure python. 
 
