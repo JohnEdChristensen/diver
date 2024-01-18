@@ -8,7 +8,7 @@ Live Examples:
 - https://johnedchristensen.github.io/diver/src/?filename=e_field.py
 - https://johnedchristensen.github.io/diver/src/?filename=squares.py
 ### Interactive
-- https://johnedchristensen.github.io/diver/src/?filename=strings.py
+- https://johnedchristensen.github.io/diver/src/?filename=string.py
 ## About
 A simple python package that makes it easy to share interactive visuals on the web.
 Uses pyodide to run python directly in the browser, meaning code can be shared with others without any need to download/install/configure python. 
