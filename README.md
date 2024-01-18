@@ -4,7 +4,7 @@
 ## Examples
 
 Live Examples:
-- https://johnedchristensen.github.io/diver/src/?filename=draw_rainbow.py
+- https://johnedchristensen.github.io/diver/src/?filename=rainbow.py
 - https://johnedchristensen.github.io/diver/src/?filename=e_field.py
 - https://johnedchristensen.github.io/diver/src/?filename=squares.py
 ### Interactive

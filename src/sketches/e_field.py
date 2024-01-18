@@ -9,7 +9,6 @@ HEIGHT = WIDTH
 
 def update(self: CanvasManager, t):
     canvas = self.canvas
-    ctx = self.ctx
     canvas.width = WIDTH
     canvas.height = HEIGHT
 
