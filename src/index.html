@@ -8,12 +8,17 @@
 </head>
 
 <body>
-  <button id="run-button">Run</button>
-  <button onclick="location.reload()">Reset</button>
-
-    <div class="loader"><div class="spinner"></div>Setting up python...</div>
-  <div id=code-panel>
+  <div id="bar">
+    <button id="run-button">Run</button>
+    <button onclick="location.reload()">Reset</button>
     <button id="toggle-code-button">Show Code </button>
+    <button id="about-button" onclick="location.href='https://github.com/JohnEdChristensen/diver#about'">About</button>
+  </div>
+
+  <div class="loader">
+    <div class="spinner"></div>Setting up python...
+  </div>
+  <div id=code-panel>
     <div id="collapsible-code" class="collapse">
       <div id="code-container"></div>
     </div>
@@ -28,7 +33,7 @@
   </div>
   <div id=python-canvas-container>
   </div>
-  <script type="module"  src="index.js"></script>
+  <script type="module" src="index.js"></script>
 </body>
 
 </html>

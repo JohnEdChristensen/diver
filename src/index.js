@@ -148,9 +148,10 @@ async function loadDiver() {
     .catch(error => console.error('Error fetching the file:', error))
 }
 async function loadSketch() {
-  let fileName = getFileFromURL()??'./draw.py'
+  let fileName = getFileFromURL()??'./rainbow.py'
+  
 
-  await fetch(fileName)
+  await fetch("./sketches/"+fileName)
     .then(response => response.text())
     .then(text => setEditorText(codeEditor, text))
     .catch(error => console.error('Error fetching the file:', error));

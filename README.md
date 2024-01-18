@@ -24,7 +24,6 @@ It also can be served from a static website server, meaning it is simple to embe
 - [ ] in browser LSP features like inline docs, autocomplete, linting, type checking
 - [ ] Share feature. Generate link to custom sketches
 - [ ] Embeding mode, for embedding in blog posts, etc.
-- [ ] 
 
 
 ## Usage
