@@ -6,14 +6,14 @@ HEIGHT = WIDTH
 color_width = 5
 
 
-background_color = Color(43, 51, 57)  # 2b3339
-red = Color(255, 0, 0)  # ff0000
-orange = Color(255, 165, 0)  # ffa500
-yellow = Color(255, 255, 0)  # ffff00
-green = Color(0, 128, 0)  # 008000
-blue = Color(0, 0, 255)  # 0000ff
-indigo = Color(75, 0, 130)  # 4b0082
-violet = Color(238, 130, 238)  # ee82ee
+background_color = Color(45, 53, 59)
+red = Color(255, 0, 0)
+orange = Color(255, 165, 0)
+yellow = Color(255, 255, 0)
+green = Color(0, 128, 0)
+blue = Color(0, 0, 255)
+indigo = Color(75, 0, 130)
+violet = Color(238, 130, 238)
 
 colors = [red, orange, yellow, green, blue, indigo, violet]
 colors.reverse()
@@ -33,10 +33,12 @@ def update(canvas_manager: CanvasManager, time):
         y = y * HEIGHT / 5  # scale it some more
         y = y + HEIGHT / 2  # shift it to be centered
         y = int(y)
-
+        
+        #starting at violet, draw bands of color
         for i, color in enumerate(colors):
             for j in range(color_width):
-                canvas_manager.draw_pixel(img, x, y-(i*color_width +j), color)
+                img.draw_pixel(x, y, color)
+                y = y - 1  # move up 1 to draw the next pixel
 
     canvas_manager.draw_image(img, 4)
 

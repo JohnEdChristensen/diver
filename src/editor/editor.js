@@ -1448,8 +1448,8 @@ var EditorSelection = class _EditorSelection {
     return new _EditorSelection(ranges, mainIndex);
   }
 };
-function checkSelection(selection2, docLength) {
-  for (let range of selection2.ranges)
+function checkSelection(selection, docLength) {
+  for (let range of selection.ranges)
     if (range.to > docLength)
       throw new RangeError("Selection points outside of document");
 }
@@ -2002,25 +2002,25 @@ var StateEffect = class _StateEffect {
 StateEffect.reconfigure = /* @__PURE__ */ StateEffect.define();
 StateEffect.appendConfig = /* @__PURE__ */ StateEffect.define();
 var Transaction = class _Transaction {
-  constructor(startState, changes, selection2, effects, annotations, scrollIntoView3) {
+  constructor(startState, changes, selection, effects, annotations, scrollIntoView3) {
     this.startState = startState;
     this.changes = changes;
-    this.selection = selection2;
+    this.selection = selection;
     this.effects = effects;
     this.annotations = annotations;
     this.scrollIntoView = scrollIntoView3;
     this._doc = null;
     this._state = null;
-    if (selection2)
-      checkSelection(selection2, changes.newLength);
+    if (selection)
+      checkSelection(selection, changes.newLength);
     if (!annotations.some((a) => a.type == _Transaction.time))
       this.annotations = annotations.concat(_Transaction.time.of(Date.now()));
   }
   /**
   @internal
   */
-  static create(startState, changes, selection2, effects, annotations, scrollIntoView3) {
-    return new _Transaction(startState, changes, selection2, effects, annotations, scrollIntoView3);
+  static create(startState, changes, selection, effects, annotations, scrollIntoView3) {
+    return new _Transaction(startState, changes, selection, effects, annotations, scrollIntoView3);
   }
   /**
   The new document produced by the transaction. Contrary to
@@ -2240,10 +2240,10 @@ function makeCategorizer(wordChars) {
   };
 }
 var EditorState = class _EditorState {
-  constructor(config2, doc2, selection2, values, computeSlot, tr) {
+  constructor(config2, doc2, selection, values, computeSlot, tr) {
     this.config = config2;
     this.doc = doc2;
-    this.selection = selection2;
+    this.selection = selection;
     this.values = values;
     this.status = config2.statusTemplate.slice();
     this.computeSlot = computeSlot;
@@ -2310,8 +2310,8 @@ var EditorState = class _EditorState {
     } else {
       startValues = tr.startState.values.slice();
     }
-    let selection2 = tr.startState.facet(allowMultipleSelections) ? tr.newSelection : tr.newSelection.asSingle();
-    new _EditorState(conf, tr.newDoc, selection2, startValues, (state, slot) => slot.update(state, tr), tr);
+    let selection = tr.startState.facet(allowMultipleSelections) ? tr.newSelection : tr.newSelection.asSingle();
+    new _EditorState(conf, tr.newDoc, selection, startValues, (state, slot) => slot.update(state, tr), tr);
   }
   /**
   Create a [transaction spec](https://codemirror.net/6/docs/ref/#state.TransactionSpec) that
@@ -2441,11 +2441,11 @@ var EditorState = class _EditorState {
   static create(config2 = {}) {
     let configuration = Configuration.resolve(config2.extensions || [], /* @__PURE__ */ new Map());
     let doc2 = config2.doc instanceof Text ? config2.doc : Text.of((config2.doc || "").split(configuration.staticFacet(_EditorState.lineSeparator) || DefaultSplit));
-    let selection2 = !config2.selection ? EditorSelection.single(0) : config2.selection instanceof EditorSelection ? config2.selection : EditorSelection.single(config2.selection.anchor, config2.selection.head);
-    checkSelection(selection2, doc2.length);
+    let selection = !config2.selection ? EditorSelection.single(0) : config2.selection instanceof EditorSelection ? config2.selection : EditorSelection.single(config2.selection.anchor, config2.selection.head);
+    checkSelection(selection, doc2.length);
     if (!configuration.staticFacet(allowMultipleSelections))
-      selection2 = selection2.asSingle();
-    return new _EditorState(configuration, doc2, selection2, configuration.dynamicSlots.map(() => null), (state, slot) => slot.create(state), null);
+      selection = selection.asSingle();
+    return new _EditorState(configuration, doc2, selection, configuration.dynamicSlots.map(() => null), (state, slot) => slot.create(state), null);
   }
   /**
   The size (in columns) of a tab in the document, determined by
@@ -3657,11 +3657,11 @@ function deepActiveElement(doc2) {
     elt = elt.shadowRoot.activeElement;
   return elt;
 }
-function hasSelection(dom, selection2) {
-  if (!selection2.anchorNode)
+function hasSelection(dom, selection) {
+  if (!selection.anchorNode)
     return false;
   try {
-    return contains(dom, selection2.anchorNode);
+    return contains(dom, selection.anchorNode);
   } catch (_) {
     return false;
   }
@@ -3917,9 +3917,9 @@ function clearAttributes(node) {
   while (node.attributes.length)
     node.removeAttributeNode(node.attributes[0]);
 }
-function atElementStart(doc2, selection2) {
-  let node = selection2.focusNode, offset = selection2.focusOffset;
-  if (!node || selection2.anchorNode != node || selection2.anchorOffset != offset)
+function atElementStart(doc2, selection) {
+  let node = selection.focusNode, offset = selection.focusOffset;
+  if (!node || selection.anchorNode != node || selection.anchorOffset != offset)
     return false;
   offset = Math.min(offset, maxOffset(node));
   for (; ; ) {
@@ -7262,10 +7262,10 @@ var MouseSelection = class {
     return ranges ? EditorSelection.create(ranges, sel.mainIndex) : sel;
   }
   select(event) {
-    let { view } = this, selection2 = this.skipAtoms(this.style.get(event, this.extend, this.multiple));
-    if (this.mustSelect || !selection2.eq(view.state.selection, this.dragging === false))
+    let { view } = this, selection = this.skipAtoms(this.style.get(event, this.extend, this.multiple));
+    if (this.mustSelect || !selection.eq(view.state.selection, this.dragging === false))
       this.view.dispatch({
-        selection: selection2,
+        selection,
         userEvent: "select.pointer"
       });
     this.mustSelect = false;
@@ -17153,14 +17153,14 @@ function history(config2 = {}) {
     })
   ];
 }
-function cmd(side, selection2) {
+function cmd(side, selection) {
   return function({ state, dispatch }) {
-    if (!selection2 && state.readOnly)
+    if (!selection && state.readOnly)
       return false;
     let historyState = state.field(historyField_, false);
     if (!historyState)
       return false;
-    let tr = historyState.pop(side, state, selection2);
+    let tr = historyState.pop(side, state, selection);
     if (!tr)
       return false;
     dispatch(tr);
@@ -17197,7 +17197,7 @@ var HistEvent = class _HistEvent {
   // This does not check `addToHistory` and such, it assumes the
   // transaction needs to be converted to an item. Returns null when
   // there are no changes or effects in the transaction.
-  static fromTransaction(tr, selection2) {
+  static fromTransaction(tr, selection) {
     let effects = none2;
     for (let invert of tr.startState.facet(invertedEffects)) {
       let result = invert(tr);
@@ -17206,7 +17206,7 @@ var HistEvent = class _HistEvent {
     }
     if (!effects.length && tr.changes.empty)
       return null;
-    return new _HistEvent(tr.changes.invert(tr.startState.doc), effects, void 0, selection2 || tr.startState.selection, none2);
+    return new _HistEvent(tr.changes.invert(tr.startState.doc), effects, void 0, selection || tr.startState.selection, none2);
   }
   static selection(selections) {
     return new _HistEvent(void 0, none2, void 0, void 0, selections);
@@ -17238,15 +17238,15 @@ function conc(a, b) {
 }
 var none2 = [];
 var MaxSelectionsPerEvent = 200;
-function addSelection(branch, selection2) {
+function addSelection(branch, selection) {
   if (!branch.length) {
-    return [HistEvent.selection([selection2])];
+    return [HistEvent.selection([selection])];
   } else {
     let lastEvent = branch[branch.length - 1];
     let sels = lastEvent.selectionsAfter.slice(Math.max(0, lastEvent.selectionsAfter.length - MaxSelectionsPerEvent));
-    if (sels.length && sels[sels.length - 1].eq(selection2))
+    if (sels.length && sels[sels.length - 1].eq(selection))
       return branch;
-    sels.push(selection2);
+    sels.push(selection);
     return updateBranch(branch, branch.length - 1, 1e9, lastEvent.setSelAfter(sels));
   }
 }
@@ -17303,11 +17303,11 @@ var HistoryState = class _HistoryState {
     }
     return new _HistoryState(done, none2, time, userEvent);
   }
-  addSelection(selection2, time, userEvent, newGroupDelay) {
+  addSelection(selection, time, userEvent, newGroupDelay) {
     let last = this.done.length ? this.done[this.done.length - 1].selectionsAfter : none2;
-    if (last.length > 0 && time - this.prevTime < newGroupDelay && userEvent == this.prevUserEvent && userEvent && /^select($|\.)/.test(userEvent) && eqSelectionShape(last[last.length - 1], selection2))
+    if (last.length > 0 && time - this.prevTime < newGroupDelay && userEvent == this.prevUserEvent && userEvent && /^select($|\.)/.test(userEvent) && eqSelectionShape(last[last.length - 1], selection))
       return this;
-    return new _HistoryState(addSelection(this.done, selection2), this.undone, time, userEvent);
+    return new _HistoryState(addSelection(this.done, selection), this.undone, time, userEvent);
   }
   addMapping(mapping) {
     return new _HistoryState(addMappingToBranch(this.done, mapping), addMappingToBranch(this.undone, mapping), this.prevTime, this.prevUserEvent);
@@ -17316,11 +17316,11 @@ var HistoryState = class _HistoryState {
     let branch = side == 0 ? this.done : this.undone;
     if (branch.length == 0)
       return null;
-    let event = branch[branch.length - 1], selection2 = event.selectionsAfter[0] || state.selection;
+    let event = branch[branch.length - 1], selection = event.selectionsAfter[0] || state.selection;
     if (onlySelection && event.selectionsAfter.length) {
       return state.update({
         selection: event.selectionsAfter[event.selectionsAfter.length - 1],
-        annotations: fromHistory.of({ side, rest: popSelection(branch), selection: selection2 }),
+        annotations: fromHistory.of({ side, rest: popSelection(branch), selection }),
         userEvent: side == 0 ? "select.undo" : "select.redo",
         scrollIntoView: true
       });
@@ -17334,7 +17334,7 @@ var HistoryState = class _HistoryState {
         changes: event.changes,
         selection: event.startSelection,
         effects: event.effects,
-        annotations: fromHistory.of({ side, rest, selection: selection2 }),
+        annotations: fromHistory.of({ side, rest, selection }),
         filter: false,
         userEvent: side == 0 ? "undo" : "redo",
         scrollIntoView: true
@@ -17353,14 +17353,14 @@ var historyKeymap = [
 function updateSel(sel, by) {
   return EditorSelection.create(sel.ranges.map(by), sel.mainIndex);
 }
-function setSel(state, selection2) {
-  return state.update({ selection: selection2, scrollIntoView: true, userEvent: "select" });
+function setSel(state, selection) {
+  return state.update({ selection, scrollIntoView: true, userEvent: "select" });
 }
 function moveSel({ state, dispatch }, how) {
-  let selection2 = updateSel(state.selection, how);
-  if (selection2.eq(state.selection, true))
+  let selection = updateSel(state.selection, how);
+  if (selection.eq(state.selection, true))
     return false;
-  dispatch(setSel(state, selection2));
+  dispatch(setSel(state, selection));
   return true;
 }
 function rangeEnd(range, forward) {
@@ -17441,10 +17441,10 @@ function pageInfo(view) {
 }
 function cursorByPage(view, forward) {
   let page = pageInfo(view);
-  let { state } = view, selection2 = updateSel(state.selection, (range) => {
+  let { state } = view, selection = updateSel(state.selection, (range) => {
     return range.empty ? view.moveVertically(range, forward, page.height) : rangeEnd(range, forward);
   });
-  if (selection2.eq(state.selection))
+  if (selection.eq(state.selection))
     return false;
   let effect;
   if (page.selfScroll) {
@@ -17452,9 +17452,9 @@ function cursorByPage(view, forward) {
     let scrollRect = view.scrollDOM.getBoundingClientRect();
     let scrollTop = scrollRect.top + page.marginTop, scrollBottom = scrollRect.bottom - page.marginBottom;
     if (startPos && startPos.top > scrollTop && startPos.bottom < scrollBottom)
-      effect = EditorView.scrollIntoView(selection2.main.head, { y: "start", yMargin: startPos.top - scrollTop });
+      effect = EditorView.scrollIntoView(selection.main.head, { y: "start", yMargin: startPos.top - scrollTop });
   }
-  view.dispatch(setSel(state, selection2), { effects: effect });
+  view.dispatch(setSel(state, selection), { effects: effect });
   return true;
 }
 var cursorPageUp = (view) => cursorByPage(view, false);
@@ -17477,7 +17477,7 @@ var cursorLineBoundaryRight = (view) => moveSel(view, (range) => moveByLineBound
 var cursorLineStart = (view) => moveSel(view, (range) => EditorSelection.cursor(view.lineBlockAt(range.head).from, 1));
 var cursorLineEnd = (view) => moveSel(view, (range) => EditorSelection.cursor(view.lineBlockAt(range.head).to, -1));
 function toMatchingBracket(state, dispatch, extend2) {
-  let found = false, selection2 = updateSel(state.selection, (range) => {
+  let found = false, selection = updateSel(state.selection, (range) => {
     let matching = matchBrackets(state, range.head, -1) || matchBrackets(state, range.head, 1) || range.head > 0 && matchBrackets(state, range.head - 1, 1) || range.head < state.doc.length && matchBrackets(state, range.head + 1, -1);
     if (!matching || !matching.end)
       return range;
@@ -17487,18 +17487,18 @@ function toMatchingBracket(state, dispatch, extend2) {
   });
   if (!found)
     return false;
-  dispatch(setSel(state, selection2));
+  dispatch(setSel(state, selection));
   return true;
 }
 var cursorMatchingBracket = ({ state, dispatch }) => toMatchingBracket(state, dispatch, false);
 function extendSel(view, how) {
-  let selection2 = updateSel(view.state.selection, (range) => {
+  let selection = updateSel(view.state.selection, (range) => {
     let head = how(range);
     return EditorSelection.range(range.anchor, head.head, head.goalColumn, head.bidiLevel || void 0);
   });
-  if (selection2.eq(view.state.selection))
+  if (selection.eq(view.state.selection))
     return false;
-  view.dispatch(setSel(view.state, selection2));
+  view.dispatch(setSel(view.state, selection));
   return true;
 }
 function selectByChar(view, forward) {
@@ -17555,7 +17555,7 @@ var selectLine = ({ state, dispatch }) => {
   return true;
 };
 var selectParentSyntax = ({ state, dispatch }) => {
-  let selection2 = updateSel(state.selection, (range) => {
+  let selection = updateSel(state.selection, (range) => {
     var _a2;
     let stack = syntaxTree(state).resolveStack(range.from, 1);
     for (let cur2 = stack; cur2; cur2 = cur2.next) {
@@ -17565,18 +17565,18 @@ var selectParentSyntax = ({ state, dispatch }) => {
     }
     return range;
   });
-  dispatch(setSel(state, selection2));
+  dispatch(setSel(state, selection));
   return true;
 };
 var simplifySelection = ({ state, dispatch }) => {
-  let cur2 = state.selection, selection2 = null;
+  let cur2 = state.selection, selection = null;
   if (cur2.ranges.length > 1)
-    selection2 = EditorSelection.create([cur2.main]);
+    selection = EditorSelection.create([cur2.main]);
   else if (!cur2.main.empty)
-    selection2 = EditorSelection.create([EditorSelection.cursor(cur2.main.head)]);
-  if (!selection2)
+    selection = EditorSelection.create([EditorSelection.cursor(cur2.main.head)]);
+  if (!selection)
     return false;
-  dispatch(setSel(state, selection2));
+  dispatch(setSel(state, selection));
   return true;
 };
 function deleteBy(target, by) {
@@ -17778,8 +17778,8 @@ var deleteLine = (view) => {
       to++;
     return { from, to };
   }));
-  let selection2 = updateSel(state.selection, (range) => view.moveVertically(range, true)).map(changes);
-  view.dispatch({ changes, selection: selection2, scrollIntoView: true, userEvent: "delete.line" });
+  let selection = updateSel(state.selection, (range) => view.moveVertically(range, true)).map(changes);
+  view.dispatch({ changes, selection, scrollIntoView: true, userEvent: "delete.line" });
   return true;
 };
 function isBetweenBrackets(state, pos) {
@@ -18298,10 +18298,10 @@ function createLineDialog(view) {
       line2 = line2 * (sign == "-" ? -1 : 1) + startLine.number;
     }
     let docLine = state.doc.line(Math.max(1, Math.min(state.doc.lines, line2)));
-    let selection2 = EditorSelection.cursor(docLine.from + Math.max(0, Math.min(col, docLine.length)));
+    let selection = EditorSelection.cursor(docLine.from + Math.max(0, Math.min(col, docLine.length)));
     view.dispatch({
-      effects: [dialogEffect.of(false), EditorView.scrollIntoView(selection2.from, { y: "center" })],
-      selection: selection2
+      effects: [dialogEffect.of(false), EditorView.scrollIntoView(selection.from, { y: "center" })],
+      selection
     });
     view.focus();
   }
@@ -18430,9 +18430,9 @@ var defaultTheme = /* @__PURE__ */ EditorView.baseTheme({
   ".cm-searchMatch .cm-selectionMatch": { backgroundColor: "transparent" }
 });
 var selectWord = ({ state, dispatch }) => {
-  let { selection: selection2 } = state;
-  let newSel = EditorSelection.create(selection2.ranges.map((range) => state.wordAt(range.head) || EditorSelection.cursor(range.head)), selection2.mainIndex);
-  if (newSel.eq(selection2))
+  let { selection } = state;
+  let newSel = EditorSelection.create(selection.ranges.map((range) => state.wordAt(range.head) || EditorSelection.cursor(range.head)), selection.mainIndex);
+  if (newSel.eq(selection))
     return false;
   dispatch(state.update({ selection: newSel }));
   return true;
@@ -18722,11 +18722,11 @@ var findNext = /* @__PURE__ */ searchCommand((view, { query }) => {
   let next = query.nextMatch(view.state, to, to);
   if (!next)
     return false;
-  let selection2 = EditorSelection.single(next.from, next.to);
+  let selection = EditorSelection.single(next.from, next.to);
   let config2 = view.state.facet(searchConfigFacet);
   view.dispatch({
-    selection: selection2,
-    effects: [announceMatch(view, next), config2.scrollToMatch(selection2.main, view)],
+    selection,
+    effects: [announceMatch(view, next), config2.scrollToMatch(selection.main, view)],
     userEvent: "select.search"
   });
   selectSearchInput(view);
@@ -18737,11 +18737,11 @@ var findPrevious = /* @__PURE__ */ searchCommand((view, { query }) => {
   let prev = query.prevMatch(state, from, from);
   if (!prev)
     return false;
-  let selection2 = EditorSelection.single(prev.from, prev.to);
+  let selection = EditorSelection.single(prev.from, prev.to);
   let config2 = view.state.facet(searchConfigFacet);
   view.dispatch({
-    selection: selection2,
-    effects: [announceMatch(view, prev), config2.scrollToMatch(selection2.main, view)],
+    selection,
+    effects: [announceMatch(view, prev), config2.scrollToMatch(selection.main, view)],
     userEvent: "select.search"
   });
   selectSearchInput(view);
@@ -18783,7 +18783,7 @@ var replaceNext = /* @__PURE__ */ searchCommand((view, { query }) => {
   let next = query.nextMatch(state, from, from);
   if (!next)
     return false;
-  let changes = [], selection2, replacement;
+  let changes = [], selection, replacement;
   let effects = [];
   if (next.from == from && next.to == to) {
     replacement = state.toText(query.getReplacement(next));
@@ -18793,13 +18793,13 @@ var replaceNext = /* @__PURE__ */ searchCommand((view, { query }) => {
   }
   if (next) {
     let off = changes.length == 0 || changes[0].from >= next.to ? 0 : next.to - next.from - replacement.length;
-    selection2 = EditorSelection.single(next.from - off, next.to - off);
+    selection = EditorSelection.single(next.from - off, next.to - off);
     effects.push(announceMatch(view, next));
-    effects.push(state.facet(searchConfigFacet).scrollToMatch(selection2.main, view));
+    effects.push(state.facet(searchConfigFacet).scrollToMatch(selection.main, view));
   }
   view.dispatch({
     changes,
-    selection: selection2,
+    selection,
     effects,
     userEvent: "input.replace"
   });
@@ -21139,13 +21139,13 @@ var LintPanel = class _LintPanel {
     if (this.selectedIndex < 0)
       return;
     let field = this.view.state.field(lintState);
-    let selection2 = findDiagnostic(field.diagnostics, this.items[selectedIndex].diagnostic);
-    if (!selection2)
+    let selection = findDiagnostic(field.diagnostics, this.items[selectedIndex].diagnostic);
+    if (!selection)
       return;
     this.view.dispatch({
-      selection: { anchor: selection2.from, head: selection2.to },
+      selection: { anchor: selection.from, head: selection.to },
       scrollIntoView: true,
-      effects: movePanelSelection.of(selection2)
+      effects: movePanelSelection.of(selection)
     });
   }
   static open(view) {
@@ -23689,34 +23689,34 @@ function python() {
   ]);
 }
 
-// node_modules/@codemirror/theme-one-dark/dist/index.js
-var chalky = "#e5c07b";
-var coral = "#e06c75";
-var cyan = "#56b6c2";
-var invalid = "#ffffff";
-var ivory = "#abb2bf";
-var stone = "#7d8799";
-var malibu = "#61afef";
-var sage = "#98c379";
-var whiskey = "#d19a66";
-var violet = "#c678dd";
-var darkBackground = "#21252b";
-var highlightBackground = "#2c313a";
-var background = "#282c34";
-var tooltipBackground = "#353a42";
-var selection = "#3E4451";
-var cursor = "#528bff";
-var oneDarkTheme = /* @__PURE__ */ EditorView.theme({
+// src/editor/theme-everforest.ts
+var yellow = "#DBBC7F";
+var red = "#E67E80";
+var aqua = "#83C092";
+var invalid = "#514045";
+var ivory = "#D3C6AA";
+var grey0 = "#7A8478";
+var blue = "#7FBBB3";
+var green = "#A7C080";
+var orange = "#E69875";
+var purple = "#D699B6";
+var bg_dim = "#232A2E";
+var bg1 = "#343F44";
+var bg0 = "#2D353B";
+var bg2 = "#3D484D";
+var bg3 = "#475258";
+var cursor = ivory;
+var everforestTheme = EditorView.theme({
   "&": {
     color: ivory,
-    backgroundColor: background
+    backgroundColor: bg0
   },
   ".cm-content": {
     caretColor: cursor
   },
   ".cm-cursor, .cm-dropCursor": { borderLeftColor: cursor },
-  "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection": { backgroundColor: selection },
-  ".cm-panels": { backgroundColor: darkBackground, color: ivory },
+  "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection": { backgroundColor: bg3 },
+  ".cm-panels": { backgroundColor: bg_dim, color: ivory },
   ".cm-panels.cm-panels-top": { borderBottom: "2px solid black" },
   ".cm-panels.cm-panels-bottom": { borderTop: "2px solid black" },
   ".cm-searchMatch": {
@@ -23732,12 +23732,12 @@ var oneDarkTheme = /* @__PURE__ */ EditorView.theme({
     backgroundColor: "#bad0f847"
   },
   ".cm-gutters": {
-    backgroundColor: background,
-    color: stone,
+    backgroundColor: bg0,
+    color: grey0,
     border: "none"
   },
   ".cm-activeLineGutter": {
-    backgroundColor: highlightBackground
+    backgroundColor: bg1
   },
   ".cm-foldPlaceholder": {
     backgroundColor: "transparent",
@@ -23746,55 +23746,89 @@ var oneDarkTheme = /* @__PURE__ */ EditorView.theme({
   },
   ".cm-tooltip": {
     border: "none",
-    backgroundColor: tooltipBackground
+    backgroundColor: bg2
   },
   ".cm-tooltip .cm-tooltip-arrow:before": {
     borderTopColor: "transparent",
     borderBottomColor: "transparent"
   },
   ".cm-tooltip .cm-tooltip-arrow:after": {
-    borderTopColor: tooltipBackground,
-    borderBottomColor: tooltipBackground
+    borderTopColor: bg2,
+    borderBottomColor: bg2
   },
   ".cm-tooltip-autocomplete": {
     "& > ul > li[aria-selected]": {
-      backgroundColor: highlightBackground,
+      backgroundColor: bg1,
       color: ivory
     }
   }
 }, { dark: true });
-var oneDarkHighlightStyle = /* @__PURE__ */ HighlightStyle.define([
+var everforestHighlightStyle = HighlightStyle.define([
   {
+    //   "with as print": t.keyword,
+    //   "for while if elif else try except finally return raise break continue with pass assert await yield match case": t.controlKeyword,
     tag: tags.keyword,
-    color: violet
+    color: purple
   },
   {
-    tag: [tags.name, tags.deleted, tags.character, tags.propertyName, tags.macroName],
-    color: coral
-  },
-  {
-    tag: [/* @__PURE__ */ tags.function(tags.variableName), tags.labelName],
-    color: malibu
-  },
-  {
-    tag: [tags.color, /* @__PURE__ */ tags.constant(tags.name), /* @__PURE__ */ tags.standard(tags.name)],
-    color: whiskey
-  },
-  {
-    tag: [/* @__PURE__ */ tags.definition(tags.name), tags.separator],
+    //   VariableName: t.variableName,
+    //   PropertyName: t.propertyName,
+    //   Ellipsis: t.punctuation,
+    //   "( )": t.paren,
+    //   "[ ]": t.squareBracket,
+    //   "{ }": t.brace,
+    tag: [tags.name, tags.punctuation, tags.deleted, tags.character, tags.macroName],
     color: ivory
   },
   {
-    tag: [tags.typeName, tags.className, tags.number, tags.changed, tags.annotation, tags.modifier, tags.self, tags.namespace],
-    color: chalky
+    //   "CallExpression/VariableName": t.function(t.variableName),
+    //   "FunctionDefinition/VariableName": t.function(t.definition(t.variableName)),
+    tag: [tags.function(tags.variableName), tags.labelName],
+    color: green
   },
   {
-    tag: [tags.operator, tags.operatorKeyword, tags.url, tags.escape, tags.regexp, tags.link, /* @__PURE__ */ tags.special(tags.string)],
-    color: cyan
+    tag: [tags.propertyName],
+    color: blue
   },
   {
-    tag: [tags.meta, tags.comment],
-    color: stone
+    tag: [tags.color, tags.constant(tags.name), tags.standard(tags.name)],
+    color: orange
+  },
+  {
+    //   Number: t.number,
+    //   "ClassDefinition/VariableName": t.definition(t.className),
+    tag: [tags.definition(tags.name), tags.number],
+    color: yellow
+  },
+  {
+    //   At: t.meta,
+    tag: [tags.typeName, tags.className, tags.changed, tags.annotation, tags.modifier, tags.self, tags.namespace, tags.meta],
+    //   None: t.null,
+    color: yellow
+  },
+  {
+    //   "from def class global nonlocal lambda": t.definitionKeyword,
+    //   import: t.moduleKeyword,
+    tag: [tags.definitionKeyword, tags.moduleKeyword],
+    color: red
+  },
+  {
+    //   String: t.string,
+    //   FormatString: t.special(t.string),
+    tag: [tags.string],
+    color: aqua
+  },
+  {
+    //   "in not and or is del": t.operatorKeyword,
+    //   ".": t.derefOperator,
+    //   ", ;": t.separator
+    tag: [tags.derefOperator, tags.url, tags.escape, tags.regexp, tags.link, tags.special(tags.string), tags.separator],
+    color: ivory
+  },
+  {
+    //   Comment: t.lineComment,
+    tag: [tags.comment],
+    color: grey0
   },
   {
     tag: tags.strong,
@@ -23810,49 +23844,56 @@ var oneDarkHighlightStyle = /* @__PURE__ */ HighlightStyle.define([
   },
   {
     tag: tags.link,
-    color: stone,
+    color: grey0,
     textDecoration: "underline"
   },
   {
     tag: tags.heading,
     fontWeight: "bold",
-    color: coral
+    color: red
   },
   {
-    tag: [tags.atom, tags.bool, /* @__PURE__ */ tags.special(tags.variableName)],
-    color: whiskey
+    //   Boolean: t.bool,
+    //   UpdateOp: t.updateOperator,
+    //   "ArithOp!": t.arithmeticOperator,
+    //   BitOp: t.bitwiseOperator,
+    //   CompareOp: t.compareOperator,
+    //   AssignOp: t.definitionOperator,
+    tag: [tags.atom, tags.bool, tags.special(tags.variableName), tags.operator, tags.operatorKeyword],
+    color: orange
   },
   {
-    tag: [tags.processingInstruction, tags.string, tags.inserted],
-    color: sage
+    tag: [tags.processingInstruction, tags.inserted],
+    color: green
   },
   {
     tag: tags.invalid,
     color: invalid
   }
 ]);
-var oneDark = [oneDarkTheme, /* @__PURE__ */ syntaxHighlighting(oneDarkHighlightStyle)];
+var everforest = [everforestTheme, syntaxHighlighting(everforestHighlightStyle)];
 
-// src/editor.ts
+// src/editor/editor.ts
 var code_container = document.getElementById("code-container") ?? document.body;
-function createEditor(initialDoc) {
-  return new EditorView({
-    doc: initialDoc,
-    extensions: [basicSetup, python(), oneDark],
-    parent: code_container
-  });
-}
-function getEditorText(editor) {
-  return editor.state.doc.toString();
-}
-function setEditorText(editor, text) {
-  const transaction = editor.state.update({
-    changes: { from: 0, to: editor.state.doc.length, insert: text }
-  });
-  editor.dispatch(transaction);
-}
+var DiverEditor = class {
+  editorView;
+  constructor(initialDoc) {
+    this.editorView = new EditorView({
+      doc: initialDoc,
+      extensions: [basicSetup, python(), everforest],
+      parent: code_container
+    });
+  }
+  getText() {
+    return this.editorView.state.doc.toString();
+  }
+  setText(text) {
+    const transaction = this.editorView.state.update({
+      changes: { from: 0, to: this.editorView.state.doc.length, insert: text }
+    });
+    this.editorView.dispatch(transaction);
+  }
+};
 export {
-  createEditor,
-  getEditorText,
-  setEditorText
+  DiverEditor
 };

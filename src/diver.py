@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List, cast, Tuple
 
 import numpy as np
-from js import (
+from js import ( # pyright: ignore
     CanvasRenderingContext2D,
     HTMLCanvasElement,
     ImageData,
@@ -20,12 +20,18 @@ class Color:
     g: int
     b: int
 
-
 @dataclass
 class Image:
     width: int
     height: int
     pixels: List[List[Tuple[int, int, int, int]]]
+
+    def draw_pixel(self, x: int, y: int, c: Color) -> None:
+        # Draw a single pixel to the image. 
+        # x=0,y=0 is the top left of the image. 
+        # y **increases** the further you go down the screen
+        if 0 <= x < self.width and 0 <= y < self.height:
+            self.pixels[y][x] = (c.r, c.g, c.b, 255)
 
 
 class CanvasManager:
@@ -38,10 +44,14 @@ class CanvasManager:
         print("hello from CanvasManager, ('diver.py')")
         self.animate_func = animate_func
         self.animate_loop_proxy = create_proxy(self.animate_loop)
-        self.canvas = cast(HTMLCanvasElement, document.getElementById("myCanv"))
+        self.canvas = cast(
+            HTMLCanvasElement, document.getElementById("myCanv")
+        )
         if self.canvas is None:
             print("Existing canvas not found, attempting to create new one")
-            self.canvas = cast(HTMLCanvasElement, document.createElement("canvas"))
+            self.canvas = cast(
+                HTMLCanvasElement, document.createElement("canvas")
+            )
             self.canvas.id = "myCanv"  # TODO clean up names to disambiguate
 
             pyCanv = document.getElementById("python-canvas-container")
@@ -68,23 +78,29 @@ class CanvasManager:
         # a proxy is necessary to pass a python function to js
         # this starts the animation (and keeps track of the current frame)
 
-        self.last_frame_id = window.requestAnimationFrame(self.animate_loop_proxy)
+        self.last_frame_id = window.requestAnimationFrame(
+            self.animate_loop_proxy
+        )
 
     def animate_loop(self, frame_time_mili):
         if self.start_time == 0:
             self.start_time = frame_time_mili
         else:
-            #TODO better way of handling div by zero?
-            if(frame_time_mili != self.last_frame_time):
-                self.frame_rate = 1000 / (frame_time_mili - self.last_frame_time)
+            # TODO better way of handling div by zero?
+            if frame_time_mili != self.last_frame_time:
+                self.frame_rate = 1000 / (
+                    frame_time_mili - self.last_frame_time
+                )
                 if self.frame_count % 10 == 0:
                     ...
-                    #print(self.frame_rate)
+                    # print(self.frame_rate)
         self.last_frame_time = frame_time_mili
         self.frame_count += 1
 
         self.animate_func(self, frame_time_mili)
-        self.last_frame_id = window.requestAnimationFrame(self.animate_loop_proxy)
+        self.last_frame_id = window.requestAnimationFrame(
+            self.animate_loop_proxy
+        )
 
     def cancelAnimationLoop(self):
         window.cancelAnimationFrame(self.last_frame_id)
@@ -94,16 +110,16 @@ class CanvasManager:
             for x in range(image.width):
                 image.pixels[y][x] = (c.r, c.g, c.b, 255)
 
-    def draw_pixel(self, image: Image, x: int, y: int, c: Color) -> None:
-        if 0 <= x < image.width and 0 <= y < image.height:
-            image.pixels[y][x] = (c.r, c.g, c.b, 255)
 
     def create_image(self, width: int, height: int, bc: Color) -> Image:
         return Image(
             width,
             height,
             # [[Color(0,0,0) for _ in range(width)] for _ in range(height)],
-            [[(bc.r, bc.g, bc.b, 255) for _ in range(width)] for _ in range(height)],
+            [
+                [(bc.r, bc.g, bc.b, 255) for _ in range(width)]
+                for _ in range(height)
+            ],
         )
 
     def draw_image(self, image: Image, scale_factor: int):

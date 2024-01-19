@@ -2,7 +2,7 @@
   "name": "diver",
   "version": "1.0.0",
   "description": "Make visualizations with python that are simple to share on the web",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "serve": "browser-sync start --server 'src' --files 'src/*' --ignore 'src/*.ts' --no-ui"
   },

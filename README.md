@@ -18,17 +18,32 @@ It also can be served from a static website server, meaning it is simple to embe
 ## Features
 - [x] Render static images to a canvas element
 - [x] live reloading development server
-- [ ] Render animated canvas/webgl
+- [x] Render animated canvas/webgl
 - [ ] pythonic drawing api (with beginner/user friendly documentation/examples)
-- [ ] Write code in browser
-- [ ] in browser LSP features like inline docs, autocomplete, linting, type checking
+- [x] Write code in browser
+- [-] in browser LSP features like inline docs, autocomplete, linting, type checking
+- [ ] Human friendly documentation (with live running/editable examples of course)
 - [ ] Share feature. Generate link to custom sketches
 - [ ] Embeding mode, for embedding in blog posts, etc.
-
+- [ ]? collaborative editing/ 1 way live sharing 
+    - Only planning to do this if it doesn't require hosting a server. Currently looking into yjs + codemirror
 
 ## Usage
-- [ ] Add details on usage
+The current state of the library is in very active development. Expect breaking changes.
+### Pixel level drawing
+[This example (rainbow.py)](https://johnedchristensen.github.io/diver/src/?filename=rainbow.py) shows some basic usage. It specifies each pixel on the canvas, so you can draw anything you want directly this way. It isn't very performant this way, so the resolution needs to be pretty low to run smoothly.
+
+### 2D Canvas API
+
+[This example (squares.py)](https://johnedchristensen.github.io/diver/src/?filename=squares.py) draws to canvas using the javascript canvas API. This is much more performant, and can run at higher resolutions/framerates. To use this mode you'll need to know (or learn) how to use the [canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
+
+### Best of both worlds (for me)
+
+A more user friendly API is planned that will have better documentation integration to make it easier to find what functions are available straight from the editor.
+
+
 ## Limitations
+
 While many popular python packages run great in the browser, not all packages can. See https://pyodide.org/en/stable/usage/packages-in-pyodide.html for a list of packages that will work out of the box.
 
 ## Development

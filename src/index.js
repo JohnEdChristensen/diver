@@ -1,25 +1,12 @@
-import { createEditor, setEditorText, getEditorText } from './editor.js'
+import { DiverEditor } from './editor/editor.js'
 
-const codeEditor = createEditor("");
+const diverEditor = new DiverEditor("");
 const output = document.getElementById("output-content");
 output.textContent = "Initializing...\n";
 let diver = "";
 
 //@type{PyodideAPI}
-// let pyodide = await loadPyodide();
 let pyodide = null;
-
-function addToOutput(s, showCode) {
-  if (showCode) {
-    output.textContent += ">>>" + getEditorText(codeEditor) + "\n";
-  }
-  console.log(s)
-  if (s != undefined) {
-    output.textContent += s + "\n";
-  }
-  const scroller = document.getElementById("collapsible-output");
-  scroller.scrollTo(0, output.scrollHeight);
-}
 
 // init Pyodide
 async function main() {
@@ -31,9 +18,8 @@ async function main() {
   // const micropip = pyodide.pyimport("micropip");
   // await micropip.install("numpy");
   // install diver
-  try {
-    let install_diver_py =
-      `
+  let install_diver_py =
+    `
 # https://pyodide.org/en/stable/usage/loading-custom-python-code.html#from-python
 # Downloading a single file
 import importlib
@@ -41,12 +27,13 @@ from pathlib import Path
 
 Path("diver.py").write_text("""
 `
-      + diver +
-      `
+    + diver +// TODO change this, """ can't be used in diver.py this way...
+    `
 """
 )
 importlib.invalidate_caches() # Make sure Python notices the new .py file
 `
+  try {
 
     console.log("Loading Diver")
     //console.log(install_diver_py)
@@ -54,15 +41,23 @@ importlib.invalidate_caches() # Make sure Python notices the new .py file
     console.log("Installed diver. Output (if any):", output)
   } catch (err) {
     console.log("Error installing diver")
-    console.log(diver)
+    console.log(install_diver_py)
     console.log(err)
   }
   output.textContent += "Python is Ready!\n";
   //run the inital code example for the first time
   console.log("Running Initial Sketch")
-    stopLoadingIndicator();
+  stopLoadingIndicator();
   await runPython()
 }
+
+function startLoadingIndicator() {
+  document.querySelector('.loader').style.display = 'block';
+}
+function stopLoadingIndicator() {
+  document.querySelector('.loader').style.display = 'none';
+}
+
 
 async function evaluatePython() {
   addToOutput("Running Python ad hoc...", false)
@@ -73,7 +68,7 @@ async function evaluatePython() {
 
 async function runPython() {
   try {
-    let pyCode = getEditorText(codeEditor)
+    let pyCode = diverEditor.getText()
     //this should work to dynamically install packages, but it isn't... I'll manuall install for now.
     // await pyodide.loadPackagesFromImports(pyCode,{messageCallback : (m)=>{console.log(m)}})
     let output = await pyodide.runPythonAsync(pyCode);
@@ -85,17 +80,13 @@ async function runPython() {
     console.log("Current Sketch Failed. Output(if any):" + output)
   }
 }
-function startLoadingIndicator(){
-  document.querySelector('.loader').style.display = 'block';
-}
-function stopLoadingIndicator(){
-  document.querySelector('.loader').style.display = 'none';
-}
 
 document.addEventListener('DOMContentLoaded', function() {
+
   // side toggle
   const runButton = document.getElementById('run-button');
   runButton.addEventListener('click', evaluatePython)
+
   const toggleCodeButton = document.getElementById('toggle-code-button');
   const collapsibleCode = document.getElementById('collapsible-code');
 
@@ -110,6 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById("code-container").style.visibility = "visible"
     }
   });
+
   //bottom toggle
   const toggleOutputButton = document.getElementById('toggle-output-button');
   const collapsibleOutput = document.getElementById('collapsible-output');
@@ -129,34 +121,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function reloadDiver() {
   addToOutput("Diver src changed, reloading...", false);
+  window.location.reload();
+  //previously used the following, but ran into multiple python instances running
+  //only effects dev server workflow, so not critical to fix
+  //
+  // just reload diver module
   // await loadDiver();//make sure file is loaded before continouing!
   // pyodide.setInterruptBuffer;
   // main();
-  window.location.reload();
 }
-globalThis.reloadDiver = reloadDiver
+globalThis.reloadDiver = reloadDiver // expose to global scope for dev server
+
 async function reloadSketch() {
   addToOutput("Sketch src changed, reloading...", false);
   await loadSketch();
   evaluatePython();
 }
-globalThis.reloadSketch = reloadSketch
+globalThis.reloadSketch = reloadSketch // expose to global scope for dev server
+
 async function loadDiver() {
   await fetch('./diver.py')
     .then(response => response.text())
     .then(text => diver = text)
     .catch(error => console.error('Error fetching the file:', error))
 }
-async function loadSketch() {
-  let fileName = getFileFromURL()??'./rainbow.py'
-  
 
-  await fetch("./sketches/"+fileName)
+async function loadSketch() {
+  let fileName = getFileFromURL() ?? './rainbow.py'
+  await fetch("./sketches/" + fileName)
     .then(response => response.text())
-    .then(text => setEditorText(codeEditor, text))
+    .then(text => diverEditor.setText(text))
     .catch(error => console.error('Error fetching the file:', error));
 }
-function getFileFromURL(){
+
+function getFileFromURL() {
   const currentUrl = window.location.href;
   const url = new URL(currentUrl);
   const params = new URLSearchParams(url.search);
@@ -165,4 +163,17 @@ function getFileFromURL(){
   const fileName = params.get('filename'); // This would be 'myfile.txt'
   return fileName
 }
+
+function addToOutput(s, showCode) {
+  if (showCode) {
+    output.textContent += ">>>" + diverEditor.getText() + "\n";
+  }
+  console.log(s)
+  if (s != undefined) {
+    output.textContent += s + "\n";
+  }
+  const scroller = document.getElementById("collapsible-output");
+  scroller.scrollTo(0, output.scrollHeight);
+}
+
 main();
