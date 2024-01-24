@@ -86,7 +86,7 @@ export class DiverVisual extends HTMLElement {
   }
 
   async loadDiver() {
-    await fetch('/diver.py')
+    await fetch('diver.py')
       .then(response => response.text())
       .then(text => this.diverLibString = text)
       .catch(error => console.error('Error fetching the file:', error))
