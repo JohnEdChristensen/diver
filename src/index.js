@@ -5,12 +5,12 @@ const diverEditor = new DiverEditor("")
 const outputPanelContent = document.getElementById("output-content")
 outputPanelContent.textContent = "Initializing...\n"
 
-const diverVisual  = document.getElementById("diverID") 
-diverVisual.addEventListener('sketchLoaded',e=>diverEditor.setText(e.detail))
+const diverVisual = document.getElementById("diverID")
+diverVisual.addEventListener('sketchLoaded', e => diverEditor.setText(e.detail))
 
 let sketchFileName = getFileFromURL()
 // load python code 
-if(sketchFileName){
+if (sketchFileName) {
   diverVisual.URLFile = sketchFileName
 }
 
@@ -18,13 +18,16 @@ if(sketchFileName){
 // setup code that needs DOM elements
 document.addEventListener('DOMContentLoaded', function() {
   // initial panel setup
-  panelToggleSetup() 
+  panelToggleSetup()
 })
 
-function panelToggleSetup(){
+function panelToggleSetup() {
   //main buttons
   const runButton = document.getElementById('run-button')
-  runButton.addEventListener('click', diverVisual.runSketch)
+  runButton.addEventListener('click', () => {
+    diverVisual.sketchString = diverEditor.getText()
+    diverVisual.runSketch()
+  })
 
   // Utility function to toggle elements and button text
   const toggleElement = (button, element, className, textContent) => {
