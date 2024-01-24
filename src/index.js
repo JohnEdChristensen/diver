@@ -1,13 +1,21 @@
+// catch errors before you run, setup your IDE to use tsserver:
+// @ts-check
+// read more: https://www.typescriptlang.org/docs/handbook/intro-to-js-ts.html
 "use strict"
 import { DiverEditor } from './editor/editor.js'
+import { DiverVisual } from './diverComponent.js'
+import { getElementOrError } from './utils.js'
 
 const diverEditor = new DiverEditor("")
-const outputPanelContent = document.getElementById("output-content")
+const outputPanelContent =  getElementOrError("output-content")
+//const outputPanelContent = document.getElementById("output-content")
 outputPanelContent.textContent = "Initializing...\n"
-const diverVisual  = document.getElementById("diverID") 
+
+/** @type {DiverVisual} */
+const diverVisual  = getElementOrError("diverID") 
 diverVisual.addEventListener('sketchLoaded',e=>diverEditor.setText(e.detail))
 
-
+console.log(diverVisual.sketchString)
 // setup code that needs DOM elements
 document.addEventListener('DOMContentLoaded', function() {
   // load python code 
