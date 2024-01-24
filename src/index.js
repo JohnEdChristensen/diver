@@ -11,7 +11,11 @@ diverVisual.addEventListener('sketchLoaded',e=>diverEditor.setText(e.detail))
 // setup code that needs DOM elements
 document.addEventListener('DOMContentLoaded', function() {
   // load python code 
-  //
+  let fileName = getFileFromURL()
+  if(fileName){
+    diverVisual.sketchFileName = fileName
+    diverVisual.loadSketch()
+  }
   // initial panel setup
   panelToggleSetup() 
 })
