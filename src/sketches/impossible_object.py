@@ -17,26 +17,35 @@ def update(self: CanvasManager, t):
     ctx = self.ctx
     canvas.width = WIDTH
     canvas.height = HEIGHT
-    w, h = WIDTH, HEIGHT
-    rotate_angle = t / 1000
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     
-    #put orign at bottom right
-    ctx.translate(0, h)
+    #put orign at bottom left
+    ctx.translate(0, HEIGHT)
     ctx.scale(20,-20) 
+
     ## add some margin
     ctx.translate(10,10)
 
+    # roughly the center of the shape
+    # so we can rotate it
     ctx.translate(6,5)
-    ctx.rotate(t/1000)
+
+    ctx.rotate(t/2000) # spin the whole shape
+
+    # I drew it on graph paper, and skewed it so that everything fell on grid points
     xLength = 2
     yLength = m.sqrt(3)
-    ycorrection = yLength/xLength
+    # correcting for that scale now
+    ycorrection = yLength/xLength 
+
     scalex = 1 + .1 * m.sin(t/1000)
-    scaley = 1 + .3 * m.sin(t/500)
+    scaley = 1 + .2 * m.sin(t/500)
     ctx.scale(1*scalex,ycorrection* scaley)
+
+    # go back to bottom left
     ctx.translate(-6,-5)
+
     # start sketching
     # side 1 
     ctx.lineWidth=.1
@@ -78,16 +87,5 @@ def update(self: CanvasManager, t):
     ctx.closePath()
     ctx.fill()
     ctx.stroke()
-
-
-
-        
-    # ctx.fillStyle = c2
-    # ctx.fillRect(0,0,10,10)
-    # ctx.fillStyle = c3
-    # ctx.fillRect(0,0,10,10)
-    
-    ctx.stroke()
-
 
 canvasManager = CanvasManager(update)
