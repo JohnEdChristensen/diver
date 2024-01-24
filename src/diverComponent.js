@@ -21,7 +21,7 @@ export class DiverVisual extends HTMLElement {
       //TODO warn of duplicate IDs
       this.setAttribute("id", "defaultDiverRootID")
     }
-    this.sketchFileName = this.getAttribute("sketch");
+    this.sketchFileName = this.URLFile ?? this.getAttribute("sketch");
     this.diverRootId = this.getAttribute("id");
 
     console.log(`starting processing diver. id:${this.diverRootId}, sketch:${this.sketchFileName}`)

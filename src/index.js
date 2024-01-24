@@ -4,18 +4,19 @@ import { DiverEditor } from './editor/editor.js'
 const diverEditor = new DiverEditor("")
 const outputPanelContent = document.getElementById("output-content")
 outputPanelContent.textContent = "Initializing...\n"
+
 const diverVisual  = document.getElementById("diverID") 
 diverVisual.addEventListener('sketchLoaded',e=>diverEditor.setText(e.detail))
+
+let sketchFileName = getFileFromURL()
+// load python code 
+if(sketchFileName){
+  diverVisual.URLFile = sketchFileName
+}
 
 
 // setup code that needs DOM elements
 document.addEventListener('DOMContentLoaded', function() {
-  // load python code 
-  let fileName = getFileFromURL()
-  if(fileName){
-    diverVisual.sketchFileName = fileName
-    diverVisual.loadSketch()
-  }
   // initial panel setup
   panelToggleSetup() 
 })
