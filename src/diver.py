@@ -14,6 +14,9 @@ from pyodide.ffi import create_proxy
 currentCanvasManager = None
 
 
+# TODO make this dynamic
+#jsRootId = js.docuemnt.
+rootElement = document.getElementById(diverRootId).shadowRoot #type: ignore
 @dataclass
 class Color:
     r: int
@@ -42,21 +45,24 @@ class CanvasManager:
             currentCanvasManager.cancelAnimationLoop()
         currentCanvasManager = self
         print("hello from CanvasManager, ('diver.py')")
+        if rootElement is None:
+            print("Root element (diverID for now) was not found. Exiting")
+            return
         self.animate_func = animate_func
         self.animate_loop_proxy = create_proxy(self.animate_loop)
         self.canvas = cast(
-            HTMLCanvasElement, document.getElementById("myCanv")
+            HTMLCanvasElement, rootElement.getElementById("diver-canvas")
         )
         if self.canvas is None:
             print("Existing canvas not found, attempting to create new one")
             self.canvas = cast(
                 HTMLCanvasElement, document.createElement("canvas")
             )
-            self.canvas.id = "myCanv"  # TODO clean up names to disambiguate
+            self.canvas.id = "diver-canvas"  # TODO clean up names to disambiguate
 
-            pyCanv = document.getElementById("python-canvas-container")
-            if pyCanv is not None:
-                pyCanv.appendChild(self.canvas)
+            diverContainer = rootElement.getElementById("diver-canvas-container")
+            if diverContainer is not None:
+                diverContainer.appendChild(self.canvas)
             else:
                 print(
                     "Could not find div to append canvs to.",
@@ -131,7 +137,7 @@ class CanvasManager:
 
         h, w, d = scaled_image.shape
 
-        # update this incase it has changed
+        # update this in case it has changed
         self.canvas.width = w
         self.canvas.height = h
         scaled_image = np.ravel(

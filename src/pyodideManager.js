@@ -16,7 +16,9 @@ export class PyodideManager {
     // install diver
     return new PyodideManager(initPyodide)
   }
-  async installDiver(diverLibString) {
+  async installDiver(diverLibString,diverRootId) {
+    //pass javascript root ID of diver element
+    diverLibString = `diverRootId = "${diverRootId}"\n`+diverLibString
     let install_diver_py =
       `
 # https://pyodide.org/en/stable/usage/loading-custom-python-code.html#from-python
@@ -24,12 +26,7 @@ export class PyodideManager {
 import importlib
 from pathlib import Path
 
-Path("diver.py").write_text("""
-`
-      + diverLibString +// TODO change this, """ can't be used in diver.py this way...
-      `
-"""
-)
+Path("diver.py").write_text("""${diverLibString}""")
 importlib.invalidate_caches() # Make sure Python notices the new .py file
 `
     try {

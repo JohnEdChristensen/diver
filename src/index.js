@@ -1,60 +1,17 @@
 "use strict"
 import { DiverEditor } from './editor/editor.js'
-import { PyodideManager } from './pyodideManager.js'
 
-let pyodideManager = null
-let diverLibString = ""
 const diverEditor = new DiverEditor("")
 const outputPanelContent = document.getElementById("output-content")
 outputPanelContent.textContent = "Initializing...\n"
+const diverVisual  = document.getElementById("diverID") 
+diverVisual.addEventListener('sketchLoaded',e=>diverEditor.setText(e.detail))
 
-
-
-// init Pyodide
-async function main() {
-
-  startLoadingIndicator();
-  console.log("Loading pyodide")
-
-  pyodideManager = await PyodideManager.createPyodideInstance()
-  await pyodideManager.installDiver(diverLibString)
-
-  stopLoadingIndicator();
-
-  outputPanelContent.textContent += "Python is Ready!\n"
-
-  //run the initial code example for the first time
-  await runSketch()
-}
-main()
-
-function startLoadingIndicator() {
-  document.querySelector('.loader').style.display = 'block'
-}
-function stopLoadingIndicator() {
-  document.querySelector('.loader').style.display = 'none'
-}
-
-
-async function runSketch() {
-  try {
-    addToOutput("Running current sketch...", false)
-    let pyCode = diverEditor.getText()
-    let output = await pyodideManager.runPython(pyCode)
-    addToOutput("Sketch Ran Successfully", false)
-    addToOutput(output, false)
-    console.log("Current Sketch Succeeded. Output(if any):" + output)
-  } catch (err) {
-    addToOutput(err, true)
-    console.log("Current Sketch Failed. Output(if any):" + outputPanelContent)
-  }
-}
 
 // setup code that needs DOM elements
 document.addEventListener('DOMContentLoaded', function() {
   // load python code 
-  loadDiver()
-  loadSketch()
+  //
   // initial panel setup
   panelToggleSetup() 
 })
@@ -62,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function panelToggleSetup(){
   //main buttons
   const runButton = document.getElementById('run-button')
-  runButton.addEventListener('click', runSketch)
+  runButton.addEventListener('click', diverVisual.runSketch)
 
   // Utility function to toggle elements and button text
   const toggleElement = (button, element, className, textContent) => {
@@ -104,26 +61,10 @@ async function reloadDiver() {
 globalThis.reloadDiver = reloadDiver // expose to global scope for dev server
 
 async function reloadSketch() {
-  addToOutput("Sketch src changed, reloading...", false)
-  await loadSketch()
-  evaluatePython()
+  diverVisual.reloadSketch()
 }
 globalThis.reloadSketch = reloadSketch // expose to global scope for dev server
 
-async function loadDiver() {
-  await fetch('./diver.py')
-    .then(response => response.text())
-    .then(text => diverLibString = text)
-    .catch(error => console.error('Error fetching the file:', error))
-}
-
-async function loadSketch() {
-  let fileName = getFileFromURL() ?? './rainbow.py'
-  await fetch("./sketches/" + fileName)
-    .then(response => response.text())
-    .then(text => diverEditor.setText(text))
-    .catch(error => console.error('Error fetching the file:', error))
-}
 
 function getFileFromURL() {
   const currentUrl = window.location.href

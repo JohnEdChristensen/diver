@@ -15,9 +15,6 @@
     <button id="about-button" onclick="location.href='https://github.com/JohnEdChristensen/diver#about'">About</button>
   </div>
 
-  <div class="loader">
-    <div class="spinner"></div>Setting up python...
-  </div>
   <div id=code-panel>
     <div id="collapsible-code" class="collapse">
       <div id="code-container"></div>
@@ -31,9 +28,9 @@
       <pre id="output-content"></pre>
     </div>
   </div>
-  <div id=python-canvas-container>
-  </div>
+    <diver-visual sketch="/sketches/rainbow.py"id="diverID"></diver-visual>
   <script type="module" src="index.js"></script>
+  <script type="module" src="diverComponent.js"></script>
 </body>
 
 </html>
