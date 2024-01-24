@@ -4,11 +4,12 @@
 ## Examples
 
 Live Examples:
-- https://johnedchristensen.github.io/diver/src/?filename=/sketches/rainbow.py
-- https://johnedchristensen.github.io/diver/src/?filename=/sketches/e_field.py
-- https://johnedchristensen.github.io/diver/src/?filename=/sketches/squares.py
+- https://johnedchristensen.github.io/diver/src/?filename=sketches/impossible_object.py
+- https://johnedchristensen.github.io/diver/src/?filename=sketches/rainbow.py
+- https://johnedchristensen.github.io/diver/src/?filename=sketches/e_field.py
+- https://johnedchristensen.github.io/diver/src/?filename=sketches/squares.py
 ### Interactive
-- https://johnedchristensen.github.io/diver/src/?filename=/sketches/string.py
+- https://johnedchristensen.github.io/diver/src/?filename=sketches/string.py
 ## About
 A simple python package that makes it easy to share interactive visuals on the web.
 Uses Pyodide to run python directly in the browser, meaning code can be shared with others without any need to download/install/configure python. 
