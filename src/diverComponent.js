@@ -1,3 +1,4 @@
+// @ts-check
 import { PyodideManager } from "./pyodideManager.js";
 
 export class DiverVisual extends HTMLElement {
@@ -32,7 +33,7 @@ export class DiverVisual extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this.shadowRoot.appendChild(diverCanvasContainer);
     this.shadowRoot.appendChild(this.constructLoadingIndicator());
-    
+
     //load resources
     this.startLoadingIndicator();
 
@@ -64,7 +65,7 @@ export class DiverVisual extends HTMLElement {
       return err
     }
   }
-  async reloadSketch(){
+  async reloadSketch() {
     await this.loadSketch();
     await this.runSketch()
   }
@@ -92,14 +93,17 @@ export class DiverVisual extends HTMLElement {
       .catch(error => console.error('Error fetching the file:', error))
   }
 
-  async loadSketch() {
-    console.log("attempting to load " +  this.sketchFileName)
-    await fetch(this.sketchFileName)
+  /**
+     * @param {URL} [sketchFileName]
+     */
+  async loadSketch(sketchFileName) {
+    console.log("attempting to load " + sketchFileName)
+    await fetch(sketchFileName)
       .then(response => response.text())
       .then(text => this.sketchString = text)
       .catch(error => console.error('Error fetching the file:', error))
     //notify upstream of sketch contents
-    this.dispatchEvent(new CustomEvent('sketchLoaded',{
+    this.dispatchEvent(new CustomEvent('sketchLoaded', {
       detail: this.sketchString
     }))
   }
