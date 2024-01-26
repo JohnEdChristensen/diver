@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from typing import List, cast, Tuple
-
 import numpy as np
-from js import ( # pyright: ignore
+from js import (  # pyright: ignore
     CanvasRenderingContext2D,
     HTMLCanvasElement,
     ImageData,
@@ -11,17 +10,13 @@ from js import ( # pyright: ignore
 )
 from pyodide.ffi import create_proxy
 
-currentCanvasManager = None
 
-
-# TODO make this dynamic
-#jsRootId = js.docuemnt.
-rootElement = document.getElementById(diverRootId).shadowRoot #type: ignore
 @dataclass
 class Color:
     r: int
     g: int
     b: int
+
 
 @dataclass
 class Image:
@@ -30,8 +25,8 @@ class Image:
     pixels: List[List[Tuple[int, int, int, int]]]
 
     def draw_pixel(self, x: int, y: int, c: Color) -> None:
-        # Draw a single pixel to the image. 
-        # x=0,y=0 is the top left of the image. 
+        # Draw a single pixel to the image.
+        # x=0,y=0 is the top left of the image.
         # y **increases** the further you go down the screen
         if 0 <= x < self.width and 0 <= y < self.height:
             self.pixels[y][x] = (c.r, c.g, c.b, 255)
@@ -58,9 +53,13 @@ class CanvasManager:
             self.canvas = cast(
                 HTMLCanvasElement, document.createElement("canvas")
             )
-            self.canvas.id = "diver-canvas"  # TODO clean up names to disambiguate
+            self.canvas.id = (
+                "diver-canvas"  # TODO clean up names to disambiguate
+            )
 
-            diverContainer = rootElement.getElementById("diver-canvas-container")
+            diverContainer = rootElement.getElementById(
+                "diver-canvas-container"
+            )
             if diverContainer is not None:
                 diverContainer.appendChild(self.canvas)
             else:
@@ -116,7 +115,6 @@ class CanvasManager:
             for x in range(image.width):
                 image.pixels[y][x] = (c.r, c.g, c.b, 255)
 
-
     def create_image(self, width: int, height: int, bc: Color) -> Image:
         return Image(
             width,
@@ -130,7 +128,6 @@ class CanvasManager:
 
     def draw_image(self, image: Image, scale_factor: int):
         canvas = self.canvas
-
         numpy_image = np.array(image.pixels, dtype=np.uint8)
         scaled_image = np.repeat(numpy_image, scale_factor, axis=0)
         scaled_image = np.repeat(scaled_image, scale_factor, axis=1)
@@ -155,3 +152,7 @@ class CanvasManager:
         pixels_buf.release()
         return "Created Image", w, h
 
+
+currentCanvasManager: None | CanvasManager = None
+# `diverRootId` is set dynamically from javascript
+rootElement = document.getElementById(diverRootId).shadowRoot  # pyright: ignore # noqa

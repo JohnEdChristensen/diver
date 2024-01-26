@@ -2,16 +2,14 @@ import { basicSetup, EditorView } from "codemirror"
 import { python } from "@codemirror/lang-python"
 import { everforest } from "./theme-everforest.js"
 
-const code_container = document.getElementById("code-container") ?? document.body;
-
-export class DiverEditor {
+export default class DiverEditor {
   editorView: EditorView;
 
-  constructor(initialDoc: string) {
+  constructor(initialDoc: string, parent: HTMLElement) {
     this.editorView = new EditorView({
       doc: initialDoc,
       extensions: [basicSetup, python(), everforest],
-      parent: code_container
+      parent: parent
     });
   }
   getText(): string {

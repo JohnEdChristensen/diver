@@ -1,28 +1,40 @@
 // @ts-check
 import { PyodideManager } from "./pyodideManager.js";
 
-export class DiverVisual extends HTMLElement {
+export default class DiverVisual extends HTMLElement {
 
   constructor() {
     super();
+    /** @type {PyodideManager | null} */
     this.pyodideManager = null
+    /** @type {string | null} */
     this.diverLibString = null
-    this.sketchString = null
+    /** @type {string | null} */
+    this.sketchSrcString = null
+    /** @type {string | null} */
+    this.sketchFileName = "/sketches/default.py"
+    /** @type {string |  null} */
+    this.dynamicFileName = null
+    /** @type {string} */
+    this.diverSrcFileName = "diver.py"
     console.log("construct web component diver")
   }
 
   async connectedCallback() {
     //Process attributes
-    if (!this.hasAttribute("sketch")) {
-      //set a default sketch
-      this.setAttribute("sketch", "/sketches/default.py")
-    }
+    this.diverSrcFileName = this.getAttribute("diverSrc") ?? this.diverSrcFileName
+    this.sketchFileName = this.getAttribute("sketch") ?? this.sketchFileName
+    this.sketchFileName = this.dynamicFileName ?? this.sketchFileName;
     if (!this.hasAttribute("id")) {
       //set a default ID, 
       //TODO warn of duplicate IDs
       this.setAttribute("id", "defaultDiverRootID")
     }
-    this.sketchFileName = this.URLFile ?? this.getAttribute("sketch");
+    if (!this.sketchFileName) {
+      throw Error("No sketch file available, pass as a `sketch` attribute in HTML, or set this.dynamicFileName before DOM load")
+    }
+    this.loadSketch(this.sketchFileName)
+    this.loadDiverSrc()
     this.diverRootId = this.getAttribute("id");
 
     console.log(`starting processing diver. id:${this.diverRootId}, sketch:${this.sketchFileName}`)
@@ -30,15 +42,13 @@ export class DiverVisual extends HTMLElement {
     const diverCanvasContainer = document.createElement("div")
     diverCanvasContainer.setAttribute("id", "diver-canvas-container")
 
-    this.attachShadow({ mode: "open" });
-    this.shadowRoot.appendChild(diverCanvasContainer);
-    this.shadowRoot.appendChild(this.constructLoadingIndicator());
+    let shadowRoot = this.attachShadow({ mode: "open" });
+    shadowRoot.appendChild(diverCanvasContainer);
+    shadowRoot.appendChild(this.constructLoadingIndicator());
 
     //load resources
     this.startLoadingIndicator();
 
-    this.loadDiver()
-    this.loadSketch()
 
     console.log("Loading pyodide")
     this.pyodideManager = await PyodideManager.createPyodideInstance()
@@ -51,13 +61,16 @@ export class DiverVisual extends HTMLElement {
     this.stopLoadingIndicator();
 
     //run the initial code example for the first time
-    await this.runSketch()
+    await this.runSketch(this.pyodideManager)
   }
 
-  async runSketch() {
+  /**
+     * @param {PyodideManager} pyodideManager
+     */
+  async runSketch(pyodideManager) {
     try {
       console.log("Running sketch..")
-      let output = await this.pyodideManager.runPython(this.sketchString)
+      let output = await pyodideManager.runPython(this.sketchSrcString)
       console.log("Sketch load succeded! Output (if any):" + output)
       return output
     } catch (err) {
@@ -66,8 +79,14 @@ export class DiverVisual extends HTMLElement {
     }
   }
   async reloadSketch() {
-    await this.loadSketch();
-    await this.runSketch()
+    if (!this.sketchFileName) {
+      throw Error("no sketch file provided, can't reload")
+    }
+    await this.loadSketch(this.sketchFileName);
+    if (!this.pyodideManager) {
+      throw Error("Pyodide manager not setup. Called reload too early, or something has gone horribly wrong")
+    }
+    await this.runSketch(this.pyodideManager)
   }
 
   constructLoadingIndicator() {
@@ -80,31 +99,33 @@ export class DiverVisual extends HTMLElement {
     return loaderDiv
   }
   startLoadingIndicator() {
+    //@ts-ignore low priority
     this.shadowRoot.querySelector('#loader').style.display = 'block'
   }
   stopLoadingIndicator() {
+    //@ts-ignore low priority
     this.shadowRoot.querySelector('#loader').style.display = 'none'
   }
 
-  async loadDiver() {
-    await fetch('diver.py')
+  async loadDiverSrc() {
+    await fetch(this.diverSrcFileName)
       .then(response => response.text())
       .then(text => this.diverLibString = text)
       .catch(error => console.error('Error fetching the file:', error))
   }
 
   /**
-     * @param {URL} [sketchFileName]
+     * @param {string} sketchFileName
      */
   async loadSketch(sketchFileName) {
     console.log("attempting to load " + sketchFileName)
     await fetch(sketchFileName)
       .then(response => response.text())
-      .then(text => this.sketchString = text)
+      .then(text => this.sketchSrcString = text)
       .catch(error => console.error('Error fetching the file:', error))
     //notify upstream of sketch contents
     this.dispatchEvent(new CustomEvent('sketchLoaded', {
-      detail: this.sketchString
+      detail: this.sketchSrcString
     }))
   }
 }

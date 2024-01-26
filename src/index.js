@@ -1,86 +1,81 @@
 // catch errors before you run, setup your IDE to use tsserver:
 // @ts-check
 // read more: https://www.typescriptlang.org/docs/handbook/intro-to-js-ts.html
-"use strict"
-import { DiverEditor } from './editor/editor.js'
-import { DiverVisual } from './diverComponent.js'
+import DiverEditor from './editor/editor.js'
+import DiverVisual from './diverComponent.js'
 import { getElementOrError } from './utils.js'
 
-const diverEditor = new DiverEditor("")
-const outputPanelContent =  getElementOrError("output-content")
-//const outputPanelContent = document.getElementById("output-content")
+//initialze editor
+const editorContainer = getElementOrError("code-container")
+const diverEditor = new DiverEditor("", editorContainer)
+
+//initialze output content
+const outputPanelContent = getElementOrError("output-content")
 outputPanelContent.textContent = "Initializing...\n"
 
+//initialze diverVisual (handles running python and sketch output)
 /** @type {DiverVisual} */
-const diverVisual  = getElementOrError("diverID") 
-diverVisual.addEventListener('sketchLoaded',e=>diverEditor.setText(e.detail))
+const diverVisual = getElementOrError("diverID")
+diverVisual.addEventListener('sketchLoaded', e => {
+  //@ts-ignore low priority
+  diverEditor.setText(e.detail);
+});
 
+//initialze user sketch
 let sketchFileName = getFileFromURL()
-// load python code 
 if (sketchFileName) {
-  diverVisual.URLFile = sketchFileName
+  diverVisual.dynamicFileName = sketchFileName
 }
 
-console.log(diverVisual.sketchString)
-// setup code that needs DOM elements
+/**setup that requires the DOM to be loaded */
 document.addEventListener('DOMContentLoaded', function() {
+  //main buttons
+  const runButton = getElementOrError('run-button')
+  runButton.addEventListener('click', () => {
+    diverVisual.reloadSketch();
+  })
   // initial panel setup
   panelToggleSetup()
 })
 
+/**Inital setup of output and editor panels */
 function panelToggleSetup() {
-  //main buttons
-  const runButton = document.getElementById('run-button')
-  runButton.addEventListener('click', () => {
-    diverVisual.sketchString = diverEditor.getText()
-    diverVisual.runSketch()
-  })
 
-  // Utility function to toggle elements and button text
-  const toggleElement = (button, element, className, textContent) => {
-    element.classList.toggle(className);
-    button.textContent = element.classList.contains(className) ? `Show ${textContent}` : `Hide ${textContent}`;
-  };
+  const toggleCodeButton = getElementOrError('toggle-code-button');
+  const collapsibleCode = getElementOrError('collapsible-code');
+  const codeContainer = getElementOrError("code-container");
 
-  // Access DOM elements
-  const toggleCodeButton = document.getElementById('toggle-code-button');
-  const collapsibleCode = document.getElementById('collapsible-code');
-  const codeContainer = document.getElementById("code-container");
+  const toggleOutputButton = getElementOrError('toggle-output-button');
+  const collapsibleOutput = getElementOrError('collapsible-output');
 
-  const toggleOutputButton = document.getElementById('toggle-output-button');
-  const collapsibleOutput = document.getElementById('collapsible-output');
+  /**Utility function to toggle elements and button text
+   * @param {HTMLElement} button
+   * @param {HTMLElement} element
+   * @param {string} className
+   * @param {string} textContent
+  */
+  function togglePanel(button, element, className, textContent) {
+    element.classList.toggle(className)
+    button.textContent = element.classList.contains(className) ? `Show ${textContent}` : `Hide ${textContent}`
+  }
 
   // Event listeners
   toggleCodeButton.addEventListener('click', () => {
-    toggleElement(toggleCodeButton, collapsibleCode, 'collapse', 'Code');
+    togglePanel(toggleCodeButton, collapsibleCode, 'collapse', 'Code');
     codeContainer.style.visibility = collapsibleCode.classList.contains('collapse') ? "hidden" : "visible";
   });
 
   toggleOutputButton.addEventListener('click', () => {
-    toggleElement(toggleOutputButton, collapsibleOutput, 'collapse', 'Output');
+    togglePanel(toggleOutputButton, collapsibleOutput, 'collapse', 'Output');
   });
 
 }
 
-async function reloadDiver() {
-  addToOutput("Diver src changed, reloading...", false)
-  window.location.reload()
-  //previously used the following, but ran into multiple python instances running
-  //only effects dev server workflow, so not critical to fix
-  //
-  // just reload diver module
-  // await loadDiver()//make sure file is loaded before continuing!
-  // pyodide.setInterruptBuffer
-  // main()
-}
-globalThis.reloadDiver = reloadDiver // expose to global scope for dev server
-
-async function reloadSketch() {
-  diverVisual.reloadSketch()
-}
-globalThis.reloadSketch = reloadSketch // expose to global scope for dev server
 
 
+/**get a filename URL parameter if present
+ * @returns {string | null}
+ */
 function getFileFromURL() {
   const currentUrl = window.location.href
   const url = new URL(currentUrl)
@@ -91,15 +86,27 @@ function getFileFromURL() {
   return fileName
 }
 
-function addToOutput(s, showCode) {
-  if (showCode) {
+/**
+ * @param {string} text - text to be added
+ * @param {boolean} showSketchSrc - flag indicating if sketchSrc should also be added to output
+ */
+function addToOutput(text, showSketchSrc) {
+  if (showSketchSrc) {
     outputPanelContent.textContent += ">>>" + diverEditor.getText() + "\n"
   }
-  console.log(s)
-  if (s != undefined) {
-    outputPanelContent.textContent += s + "\n"
+  console.log(text)
+  if (text != undefined) {
+    outputPanelContent.textContent += text + "\n"
   }
-  const scroller = document.getElementById("collapsible-output")
+  const scroller = getElementOrError("collapsible-output")
   scroller.scrollTo(0, outputPanelContent.scrollHeight)
 }
 
+/** called from dev server when source chanages */
+async function reloadDiverSrc() {
+  addToOutput("Diver src changed, reloading...", false)
+  window.location.reload()
+}
+globalThis.reloadDiver = reloadDiverSrc // expose to global scope for dev server
+//called from devserver when sketch src changes, great for editing sketches externally
+globalThis.reloadSketch = diverVisual.reloadSketch // expose to global scope for dev server
