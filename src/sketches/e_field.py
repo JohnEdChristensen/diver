@@ -3,7 +3,7 @@ import math as m
 from dataclasses import dataclass
 from typing import Tuple
 
-WIDTH = 32 
+WIDTH = 32
 HEIGHT = WIDTH
 
 
@@ -20,14 +20,14 @@ def update(self: CanvasManager, t):
 
     for x in range(HEIGHT):
         for y in range(WIDTH):
-            #update
-            scale = .005
-            p1.x = p1.x +  scale * m.cos(t/1000)
-            p1.y = p1.y +  scale * m.sin(t/1000)
-            p2.x = p2.x +  scale * m.sin(t/1000)
-            p2.y = p2.y +  scale * m.cos(t/1000)
+            # update
+            scale = 0.005
+            p1.x = p1.x + scale * m.cos(t / 1000)
+            p1.y = p1.y + scale * m.sin(t / 1000)
+            p2.x = p2.x + scale * m.sin(t / 1000)
+            p2.y = p2.y + scale * m.cos(t / 1000)
 
-            #calculate
+            # calculate
             pixel_p1_distance = p1.distance(x, y)
             if pixel_p1_distance == 0:
                 img.pixels[x][y] = (255, 155, 155, 255)
@@ -42,10 +42,9 @@ def update(self: CanvasManager, t):
             p2_field_strength = p2.charge / pixel_p2_distance**2
 
             total_field = p1_field_strength + p2_field_strength
-            #draw
-            r,g,b,a = value_to_color(total_field, p2.charge, p1.charge)
-            img.pixels[x][y] =(r,g,b,255)
-
+            # draw
+            r, g, b, _ = value_to_color(total_field, p2.charge, p1.charge)
+            img.pixels[x][y] = (r, g, b, 255)
 
     self.draw_image(img, 10)
 
@@ -75,7 +74,7 @@ def map_value(value, range1_min, range1_max, range2_min, range2_max):
     return range2_min + (percent_of_range_1 * range2)
 
 
-def value_to_color(value, min_value, max_value,exponential=.99)->Tuple[int,int,int,int]:
+def value_to_color(value, min_value, max_value, exponential=0.99) -> Tuple[int, int, int, int]:
     # value_range = max_value-min_value
     # if abs(value) < min_value + (value_range * .001):
     # # if value==0:
@@ -85,12 +84,12 @@ def value_to_color(value, min_value, max_value,exponential=.99)->Tuple[int,int,i
     blue = (0, 0, 255, 255)
     red = (255, 0, 0, 255)
     if abs(value) > max_value:
-        if value>0:
+        if value > 0:
             return red
         else:
             return blue
     if abs(value) < min_value:
-        return (0,0,0,255)
+        return (0, 0, 0, 255)
 
     # Normalize value to [0, 1]
     if value < 0:
@@ -98,11 +97,9 @@ def value_to_color(value, min_value, max_value,exponential=.99)->Tuple[int,int,i
         normalized = (value - min_value) / (max_value - min_value)
         normalized = normalized ** (-exponential)
         # Interpolate between black and blue
-        return tuple(int((1 - normalized) * c) for c in blue) # type: ignore
+        return tuple(int((1 - normalized) * c) for c in blue)  # type: ignore
     else:
         normalized = (value - min_value) / (max_value - min_value)
         normalized = normalized ** (-exponential)
         # Interpolate between black and red
-        return tuple(int((1 - normalized) * c) for c in red) # type: ignore
-
-
+        return tuple(int((1 - normalized) * c) for c in red)  # type: ignore

@@ -1,8 +1,10 @@
 from typing import Iterator
 
+
 # This is an example
 class Math:
     pi: float = 3.14
+
     @staticmethod
     def fib(n: int) -> Iterator[int]:
         """Fibonacci series up to n."""
@@ -11,7 +13,7 @@ class Math:
             yield a
             a, b = b, a + b
 
+
 result = sum(Math.fib(42))
 print("The answer is {}".format(result))
 Math.pi
-

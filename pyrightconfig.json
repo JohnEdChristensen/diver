@@ -1,1 +1,7 @@
-{ "venvPath": ".", "venv": ".venv" }
+{ 
+  "venvPath": ".",
+  "venv": ".venv",
+  //pyodide js module doesn't have source in dev env, suppress this warning
+  "reportMissingModuleSource":false,
+}
+

@@ -33,10 +33,10 @@ def update(canvas_manager: CanvasManager, time):
         y = y * HEIGHT / 5  # scale it some more
         y = y + HEIGHT / 2  # shift it to be centered
         y = int(y)
-        
-        #starting at violet, draw bands of color
-        for i, color in enumerate(colors):
-            for j in range(color_width):
+
+        # starting at violet, draw bands of color
+        for color in colors:
+            for _ in range(color_width):
                 img.draw_pixel(x, y, color)
                 y = y - 1  # move up 1 to draw the next pixel
 

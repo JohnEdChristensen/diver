@@ -21,15 +21,13 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def end_headers(self):
         # Add headers to prevent caching
-        self.send_header(
-            "Cache-Control", "no-store, no-cache, must-revalidate"
-        )
+        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
         self.send_header("Pragma", "no-cache")
         self.send_header("Expires", "0")
         super().end_headers()
 
     def do_GET(self):
-        self.path = self.path.split('?')[0]
+        self.path = self.path.split("?")[0]
         # Check if the requested path is an HTML file or root
         print(self.path)
         if self.path.endswith(".html") or self.path == "/":
@@ -46,9 +44,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 # Send the response
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
-                self.send_header(
-                    "Content-Length", str(len(modified_html.encode("utf-8")))
-                )
+                self.send_header("Content-Length", str(len(modified_html.encode("utf-8"))))
                 self.end_headers()
                 self.wfile.write(modified_html.encode("utf-8"))
                 return
@@ -93,9 +89,7 @@ class TCPServerWithReuseAddr(socketserver.TCPServer):
 # Start the HTTP server
 httpd = TCPServerWithReuseAddr(("", PORT), CustomHTTPRequestHandler)
 print(f"Serving at http://localhost:{PORT}")
-http_server_thread = asyncio.get_event_loop().run_in_executor(
-    None, httpd.serve_forever
-)
+http_server_thread = asyncio.get_event_loop().run_in_executor(None, httpd.serve_forever)
 
 active_websockets = set()
 reload_count = 0
@@ -151,9 +145,7 @@ class ReloadEventHandler(FileSystemEventHandler):
         Timer(1.0, lambda: self.throttled_events.discard(message)).start()
 
     def trigger_reload(self, message):
-        asyncio.run_coroutine_threadsafe(
-            self.broadcast_reload(message), self.loop
-        )
+        asyncio.run_coroutine_threadsafe(self.broadcast_reload(message), self.loop)
 
     async def broadcast_reload(self, message):
         global reload_count

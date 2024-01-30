@@ -12,7 +12,14 @@
   --accent-1: #425047;
   --accent-1-bg: #a7c080;
   --accent-2: #3A515D;
-  --accent-2-bg: #7FBBB3
+  --accent-2-bg: #7FBBB3;
+  --red: #E67E80;
+  --orange: #E69875;
+  --yellow: #DBBC7F;
+  --green: #A7C080;
+  --aqua: #83C092;
+  --blue: #7FBBB3;
+  --purple: #D699B6;
 }
 
 body {
@@ -24,28 +31,6 @@ body {
 
 .cm-content {
   font-family: 'Courier New', monospace;
-}
-
-/* Loading */
-.loader .spinner {
-  border: 4px solid var(--text-color);
-  border-top: 4px solid var(--panel-color);
-  /* Darker grey spinner */
-  border-radius: 50%;
-  width: 80px;
-  height: 80px;
-  margin: 20px;
-  animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
 }
 
 /* button bar */
@@ -120,6 +105,10 @@ input[type="submit"]:hover {
   flex-direction: column;
   align-items: stretch;
   z-index: 1;
+}
+
+#collapsible-output .error {
+  color: var(--red);
 }
 
 #collapsible-output {

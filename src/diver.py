@@ -1,5 +1,7 @@
+import traceback
 from dataclasses import dataclass
-from typing import List, cast, Tuple
+from typing import List, Tuple, cast
+
 import numpy as np
 from js import (  # pyright: ignore
     CanvasRenderingContext2D,
@@ -35,31 +37,31 @@ class Image:
 class CanvasManager:
     def __init__(self, animate_func):
         global currentCanvasManager
+        # `diverRootId` is set dynamically from javascript
+        self.rootElement = document.getElementById(diverRootId)  # pyright: ignore # noqa
+        self.shadowRootElement = document.getElementById(
+            diverRootId  # pyright: ignore # noqa
+        ).shadowRoot  # pyright: ignore # noqa
         # currently only supports one loop
         if currentCanvasManager is not None:
             currentCanvasManager.cancelAnimationLoop()
         currentCanvasManager = self
         print("hello from CanvasManager, ('diver.py')")
-        if rootElement is None:
+        if self.shadowRootElement is None:
             print("Root element (diverID for now) was not found. Exiting")
             return
         self.animate_func = animate_func
         self.animate_loop_proxy = create_proxy(self.animate_loop)
         self.canvas = cast(
-            HTMLCanvasElement, rootElement.getElementById("diver-canvas")
+            HTMLCanvasElement,
+            self.shadowRootElement.getElementById("diver-canvas"),
         )
         if self.canvas is None:
             print("Existing canvas not found, attempting to create new one")
-            self.canvas = cast(
-                HTMLCanvasElement, document.createElement("canvas")
-            )
-            self.canvas.id = (
-                "diver-canvas"  # TODO clean up names to disambiguate
-            )
+            self.canvas = cast(HTMLCanvasElement, document.createElement("canvas"))
+            self.canvas.id = "diver-canvas"  # TODO clean up names to disambiguate
 
-            diverContainer = rootElement.getElementById(
-                "diver-canvas-container"
-            )
+            diverContainer = self.shadowRootElement.getElementById("diver-canvas-container")
             if diverContainer is not None:
                 diverContainer.appendChild(self.canvas)
             else:
@@ -83,9 +85,7 @@ class CanvasManager:
         # a proxy is necessary to pass a python function to js
         # this starts the animation (and keeps track of the current frame)
 
-        self.last_frame_id = window.requestAnimationFrame(
-            self.animate_loop_proxy
-        )
+        self.last_frame_id = window.requestAnimationFrame(self.animate_loop_proxy)
 
     def animate_loop(self, frame_time_mili):
         if self.start_time == 0:
@@ -93,19 +93,23 @@ class CanvasManager:
         else:
             # TODO better way of handling div by zero?
             if frame_time_mili != self.last_frame_time:
-                self.frame_rate = 1000 / (
-                    frame_time_mili - self.last_frame_time
-                )
+                self.frame_rate = 1000 / (frame_time_mili - self.last_frame_time)
                 if self.frame_count % 10 == 0:
                     ...
                     # print(self.frame_rate)
         self.last_frame_time = frame_time_mili
         self.frame_count += 1
+        try:
+            self.animate_func(self, frame_time_mili)
+        except Exception as e:
+            tb = traceback.extract_tb(e.__traceback__)
+            last_call = tb[-1]  # Get the last call information
+            msg = "Error on line {}, in function {}".format(last_call.lineno, last_call.name) + "\n" + str(e)
+            # TODO FEAT return structured exception data?
+            self.rootElement.pythonErrorHandler(msg)  # pyright: ignore
+            return  # don't call next animation frame so the loop stops
 
-        self.animate_func(self, frame_time_mili)
-        self.last_frame_id = window.requestAnimationFrame(
-            self.animate_loop_proxy
-        )
+        self.last_frame_id = window.requestAnimationFrame(self.animate_loop_proxy)
 
     def cancelAnimationLoop(self):
         window.cancelAnimationFrame(self.last_frame_id)
@@ -120,10 +124,7 @@ class CanvasManager:
             width,
             height,
             # [[Color(0,0,0) for _ in range(width)] for _ in range(height)],
-            [
-                [(bc.r, bc.g, bc.b, 255) for _ in range(width)]
-                for _ in range(height)
-            ],
+            [[(bc.r, bc.g, bc.b, 255) for _ in range(width)] for _ in range(height)],
         )
 
     def draw_image(self, image: Image, scale_factor: int):
@@ -137,9 +138,7 @@ class CanvasManager:
         # update this in case it has changed
         self.canvas.width = w
         self.canvas.height = h
-        scaled_image = np.ravel(
-            np.uint8(np.reshape(scaled_image, (h * w * d, -1)))
-        ).tobytes()
+        scaled_image = np.ravel(np.uint8(np.reshape(scaled_image, (h * w * d, -1)))).tobytes()
 
         pixels_proxy = create_proxy(scaled_image)
         pixels_buf = pixels_proxy.getBuffer("u8clamped")
@@ -154,5 +153,3 @@ class CanvasManager:
 
 
 currentCanvasManager: None | CanvasManager = None
-# `diverRootId` is set dynamically from javascript
-rootElement = document.getElementById(diverRootId).shadowRoot  # pyright: ignore # noqa

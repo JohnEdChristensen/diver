@@ -173,7 +173,7 @@ export const everforestHighlightStyle = HighlightStyle.define([
   {
     //   Number: t.number,
     //   "ClassDefinition/VariableName": t.definition(t.className),
-    tag: [t.definition(t.name),t.number],
+    tag: [t.definition(t.name), t.number],
     color: yellow
   },
   {
@@ -185,7 +185,7 @@ export const everforestHighlightStyle = HighlightStyle.define([
   {
     //   "from def class global nonlocal lambda": t.definitionKeyword,
     //   import: t.moduleKeyword,
-    tag: [t.definitionKeyword,t.moduleKeyword],
+    tag: [t.definitionKeyword, t.moduleKeyword],
     color: red
   },
   {
@@ -198,7 +198,7 @@ export const everforestHighlightStyle = HighlightStyle.define([
     //   "in not and or is del": t.operatorKeyword,
     //   ".": t.derefOperator,
     //   ", ;": t.separator
-    tag: [t.derefOperator,t.url, t.escape, t.regexp, t.link, t.special(t.string),t.separator],
+    tag: [t.derefOperator, t.url, t.escape, t.regexp, t.link, t.special(t.string), t.separator],
     color: ivory
   },
   {
@@ -236,11 +236,11 @@ export const everforestHighlightStyle = HighlightStyle.define([
     //   BitOp: t.bitwiseOperator,
     //   CompareOp: t.compareOperator,
     //   AssignOp: t.definitionOperator,
-    tag: [t.atom, t.bool, t.special(t.variableName),t.operator,t.operatorKeyword],
+    tag: [t.atom, t.bool, t.special(t.variableName), t.operator, t.operatorKeyword],
     color: orange
   },
   {
-    tag: [t.processingInstruction,  t.inserted],
+    tag: [t.processingInstruction, t.inserted],
     color: green
   },
   {

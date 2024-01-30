@@ -1,4 +1,4 @@
-// ../../node_modules/@codemirror/state/dist/index.js
+// node_modules/@codemirror/state/dist/index.js
 var Text = class _Text {
   /**
   Get the line description around the given position.
@@ -3383,7 +3383,7 @@ function findColumn(string2, col, tabSize, strict) {
   return strict === true ? -1 : string2.length;
 }
 
-// ../../node_modules/style-mod/src/style-mod.js
+// node_modules/style-mod/src/style-mod.js
 var C = "\u037C";
 var COUNT = typeof Symbol == "undefined" ? "__" + C : Symbol.for(C);
 var SET = typeof Symbol == "undefined" ? "__styleSet" + Math.floor(Math.random() * 1e8) : Symbol("styleSet");
@@ -3522,7 +3522,7 @@ var StyleSet = class {
   }
 };
 
-// ../../node_modules/w3c-keyname/index.js
+// node_modules/w3c-keyname/index.js
 var base = {
   8: "Backspace",
   9: "Tab",
@@ -3638,7 +3638,7 @@ function keyName(event) {
   return name2;
 }
 
-// ../../node_modules/@codemirror/view/dist/index.js
+// node_modules/@codemirror/view/dist/index.js
 function getSelection(root) {
   let target;
   if (root.nodeType == 11) {
@@ -13050,7 +13050,7 @@ function highlightActiveLineGutter() {
   return activeLineGutterHighlighter;
 }
 
-// ../../node_modules/@lezer/common/dist/index.js
+// node_modules/@lezer/common/dist/index.js
 var DefaultBufferLength = 1024;
 var nextPropID = 0;
 var Range2 = class {
@@ -14709,7 +14709,7 @@ var StringInput = class {
 };
 var stoppedInner = new NodeProp({ perNode: true });
 
-// ../../node_modules/@lezer/highlight/dist/index.js
+// node_modules/@lezer/highlight/dist/index.js
 var nextTagID = 0;
 var Tag = class _Tag {
   /**
@@ -15401,7 +15401,7 @@ var classHighlighter = tagHighlighter([
   { tag: tags.punctuation, class: "tok-punctuation" }
 ]);
 
-// ../../node_modules/@codemirror/language/dist/index.js
+// node_modules/@codemirror/language/dist/index.js
 var _a;
 var languageDataProp = /* @__PURE__ */ new NodeProp();
 function defineLanguageFacet(baseData) {
@@ -16930,7 +16930,7 @@ var marks = {
   auto: /* @__PURE__ */ Decoration.mark({ class: "cm-iso", inclusive: true, attributes: { dir: "auto" }, bidiIsolate: null })
 };
 
-// ../../node_modules/@codemirror/commands/dist/index.js
+// node_modules/@codemirror/commands/dist/index.js
 var toggleComment = (target) => {
   let { state } = target, line = state.doc.lineAt(state.selection.main.from), config2 = getConfig(target.state, line.from);
   return config2.line ? toggleLineComment(target) : config2.block ? toggleBlockCommentByLine(target) : false;
@@ -17954,7 +17954,7 @@ var defaultKeymap = /* @__PURE__ */ [
   { key: "Alt-A", run: toggleBlockComment }
 ].concat(standardKeymap);
 
-// ../../node_modules/crelt/index.js
+// node_modules/crelt/index.js
 function crelt() {
   var elt = arguments[0];
   if (typeof elt == "string")
@@ -17989,7 +17989,7 @@ function add(elt, child) {
   }
 }
 
-// ../../node_modules/@codemirror/search/dist/index.js
+// node_modules/@codemirror/search/dist/index.js
 var basicNormalize = typeof String.prototype.normalize == "function" ? (x) => x.normalize("NFKD") : (x) => x;
 var SearchCursor = class {
   /**
@@ -19069,7 +19069,7 @@ var searchExtensions = [
   baseTheme3
 ];
 
-// ../../node_modules/@codemirror/autocomplete/dist/index.js
+// node_modules/@codemirror/autocomplete/dist/index.js
 var CompletionContext = class {
   /**
   Create a new completion context. (Mostly useful for testing
@@ -20774,7 +20774,7 @@ var completionKeymap = [
 ];
 var completionKeymapExt = /* @__PURE__ */ Prec.highest(/* @__PURE__ */ keymap.computeN([completionConfig], (state) => state.facet(completionConfig).defaultKeymap ? [completionKeymap] : []));
 
-// ../../node_modules/@codemirror/lint/dist/index.js
+// node_modules/@codemirror/lint/dist/index.js
 var SelectedDiagnostic = class {
   constructor(from, to, diagnostic) {
     this.from = from;
@@ -21261,7 +21261,7 @@ var lintExtensions = [
   baseTheme5
 ];
 
-// ../../node_modules/codemirror/dist/index.js
+// node_modules/codemirror/dist/index.js
 var basicSetup = /* @__PURE__ */ (() => [
   lineNumbers(),
   highlightActiveLineGutter(),
@@ -21291,7 +21291,7 @@ var basicSetup = /* @__PURE__ */ (() => [
   ])
 ])();
 
-// ../../node_modules/@lezer/lr/dist/index.js
+// node_modules/@lezer/lr/dist/index.js
 var Stack = class _Stack {
   /**
   @internal
@@ -23034,7 +23034,7 @@ function getSpecializer(spec) {
   return spec.get;
 }
 
-// ../../node_modules/@lezer/python/dist/index.js
+// node_modules/@lezer/python/dist/index.js
 var printKeyword = 1;
 var indent = 201;
 var dedent = 202;
@@ -23295,7 +23295,7 @@ var parser = LRParser.deserialize({
   tokenPrec: 7372
 });
 
-// ../../node_modules/@codemirror/lang-python/dist/index.js
+// node_modules/@codemirror/lang-python/dist/index.js
 var cache = /* @__PURE__ */ new NodeWeakMap();
 var ScopeNodes = /* @__PURE__ */ new Set([
   "Script",
@@ -23689,7 +23689,7 @@ function python() {
   ]);
 }
 
-// theme-everforest.ts
+// src/editor/theme-everforest.ts
 var yellow = "#DBBC7F";
 var red = "#E67E80";
 var aqua = "#83C092";
@@ -23873,15 +23873,34 @@ var everforestHighlightStyle = HighlightStyle.define([
 ]);
 var everforest = [everforestTheme, syntaxHighlighting(everforestHighlightStyle)];
 
-// editor.ts
+// src/editor/editor.ts
 var DiverEditor = class {
   editorView;
   constructor(initialDoc, parent) {
+    const indentSize = 4;
+    const customTabBinding = {
+      key: "Tab",
+      run: indentMore,
+      shift: indentLess
+    };
     this.editorView = new EditorView({
       doc: initialDoc,
-      extensions: [basicSetup, python(), everforest],
+      extensions: [
+        basicSetup,
+        //visual 
+        everforest,
+        //language
+        python(),
+        //tab
+        keymap.of([customTabBinding]),
+        EditorState.tabSize.of(indentSize),
+        indentUnit.of(" ".repeat(indentSize))
+      ],
       parent
     });
+    console.log(this.editorView.state.tabSize);
+    const currentIndentUnit = this.editorView.state.facet(EditorState.tabSize);
+    console.log("Current indentUnit:", currentIndentUnit);
   }
   getText() {
     return this.editorView.state.doc.toString();
@@ -23896,3 +23915,4 @@ var DiverEditor = class {
 export {
   DiverEditor as default
 };
+//# sourceMappingURL=editor.js.map
