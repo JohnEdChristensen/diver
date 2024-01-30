@@ -13,7 +13,7 @@ export default class DiverEditor {
   editorView: EditorView;
 
   constructor(initialDoc: string, parent: HTMLElement) {
-    // the suggested tab binding: import { indentWithTab } from "@codemirror/commands"
+    // The suggested tab binding: `import { indentWithTab } from "@codemirror/commands"`
     // didn't use 4 tabs for some reason.
     // workaround from https://github.com/microbit-foundation/python-editor-v3/blob/main/src/editor/codemirror/config.ts#L77
     const indentSize = 4
@@ -36,15 +36,6 @@ export default class DiverEditor {
       ],
       parent: parent
     });
-    console.log(this.editorView.state.tabSize)
-    // Assuming `myEditor` is your EditorView instance
-    const currentIndentUnit = this.editorView.state.facet(EditorState.tabSize);
-
-    console.log("Current indentUnit:", currentIndentUnit);
-    // Assuming `myEditor` is your instance of EditorView
-    // const indentConfig = this.editorView.state.facet(indentUnit);
-    // console.log("Current Indentation Setting:", indentConfig);
-
   }
   getText(): string {
     return this.editorView.state.doc.toString()

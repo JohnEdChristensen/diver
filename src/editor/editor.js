@@ -23898,9 +23898,6 @@ var DiverEditor = class {
       ],
       parent
     });
-    console.log(this.editorView.state.tabSize);
-    const currentIndentUnit = this.editorView.state.facet(EditorState.tabSize);
-    console.log("Current indentUnit:", currentIndentUnit);
   }
   getText() {
     return this.editorView.state.doc.toString();
