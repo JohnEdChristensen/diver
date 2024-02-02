@@ -5,35 +5,52 @@
   <title>diver.py</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.2/full/pyodide.js"></script>
   <!-- <script src="pyodide/pyodide.js"></script> -->
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <div id="bar">
-    <button id="run-button">Run</button>
+    <button id="run-button" title="Ctrl-Enter">Run</button>
     <button onclick="location.reload()">Reset</button>
     <button id="toggle-code-button">Show Code </button>
     <button id="about-button" onclick="location.href='https://github.com/JohnEdChristensen/diver#about'">About</button>
-  </div>
 
+    <button id="helpBtn">Help</button>
+    <div id="helpModal" class="modal">
+      <div class="modal-content">
+        <span id="helpModalCloseBtn" class="closeBtn">&times;</span>
+        <h2>Keyboard Shortcuts</h2>
+        <ul>
+          <li>Editor
+            <ul>
+              <li><kbd>Ctrl-Enter</kbd> - Run Sketch</li>
+              <li><kbd>Ctrl-Space</kbd> - Open Autocomplete dropdown</li>
+            </ul>
+          </li>
+      </div>
+    </div>
+  </div>
+  <div id="diver-container"></div>
   <div id=code-panel>
     <div id="collapsible-code" class="collapse">
       <div id="code-container"></div>
+      <diver-editor id="diver-editor"></diver-editor>
     </div>
   </div>
 
   <div id="output-panel">
-
     <button id="toggle-output-button">Show Output</button>
     <div id="collapsible-output" class="collapse">
       <pre id="output-content"></pre>
     </div>
   </div>
-  <div id="diver-container""></div>
+
   <script type="module" src="index.js"></script>
   <script type="module" src="diverComponent.js"></script>
+  <script type="module" src="editor/editor.js"></script>
 </body>
 
 </html>

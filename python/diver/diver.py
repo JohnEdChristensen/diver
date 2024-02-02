@@ -1,6 +1,7 @@
 import traceback
 from dataclasses import dataclass
 from typing import List, Tuple, cast
+from proceso.math.calculation import Calculation as p5_calc
 
 import numpy as np
 from js import (  # pyright: ignore
@@ -18,6 +19,7 @@ class Color:
     r: int
     g: int
     b: int
+    a: int = 255
 
 
 @dataclass
@@ -35,7 +37,7 @@ class Image:
 
 
 class CanvasManager:
-    def __init__(self, animate_func):
+    def __init__(self, animate_func, resetTime=True, canvas=None):
         global currentCanvasManager
         # `diverRootId` is set dynamically from javascript
         self.rootElement = document.getElementById(diverRootId)  # pyright: ignore # noqa
@@ -52,28 +54,34 @@ class CanvasManager:
             return
         self.animate_func = animate_func
         self.animate_loop_proxy = create_proxy(self.animate_loop)
-        self.canvas = cast(
-            HTMLCanvasElement,
-            self.shadowRootElement.getElementById("diver-canvas"),
-        )
-        if self.canvas is None:
-            print("Existing canvas not found, attempting to create new one")
-            self.canvas = cast(HTMLCanvasElement, document.createElement("canvas"))
-            self.canvas.id = "diver-canvas"  # TODO clean up names to disambiguate
+        if canvas is None:  # diver canvas
+            self.canvas = cast(
+                HTMLCanvasElement,
+                self.shadowRootElement.getElementById("diver-canvas"),
+            )
+            if self.canvas is None:
+                print("Existing canvas not found, attempting to create new one")
+                self.canvas = cast(HTMLCanvasElement, document.createElement("canvas"))
+                self.canvas.id = "diver-canvas"
 
-            diverContainer = self.shadowRootElement.getElementById("diver-canvas-container")
-            if diverContainer is not None:
-                diverContainer.appendChild(self.canvas)
-            else:
-                print(
-                    "Could not find div to append canvs to.",
-                    "There should be a div with 'python-canvas-container' id",
-                )
+                diverContainer = self.shadowRootElement.getElementById("diver-canvas-container")
+                if diverContainer is not None:
+                    diverContainer.appendChild(self.canvas)
+                else:
+                    print(
+                        "Could not find div to append canvs to.",
+                        "There should be a div with 'python-canvas-container' id",
+                    )
+            self.ctx = cast(CanvasRenderingContext2D, self.canvas.getContext("2d"))
+        else:  # external canvs (p5js)
+            print(canvas)
+            self.canvas = cast(HTMLCanvasElement, canvas)
+            print(self.canvas)
 
-        self.ctx = cast(CanvasRenderingContext2D, self.canvas.getContext("2d"))
         self.last_frame_id = 0
         self.last_frame_time = 0
         self.start_time = 0
+        self.resetTime = resetTime
         self.frame_count = 0
         self.start()
 
@@ -91,21 +99,25 @@ class CanvasManager:
         if self.start_time == 0:
             self.start_time = frame_time_mili
         else:
-            # TODO better way of handling div by zero?
+            # TODO [style] better way of handling div by zero? #5
             if frame_time_mili != self.last_frame_time:
                 self.frame_rate = 1000 / (frame_time_mili - self.last_frame_time)
                 if self.frame_count % 10 == 0:
                     ...
                     # print(self.frame_rate)
         self.last_frame_time = frame_time_mili
+        if self.resetTime:
+            total_time = self.last_frame_time - self.start_time
+        else:
+            total_time = self.last_frame_time
         self.frame_count += 1
         try:
-            self.animate_func(self, frame_time_mili)
+            self.animate_func(self, total_time)
         except Exception as e:
             tb = traceback.extract_tb(e.__traceback__)
             last_call = tb[-1]  # Get the last call information
             msg = "Error on line {}, in function {}".format(last_call.lineno, last_call.name) + "\n" + str(e)
-            # TODO FEAT return structured exception data?
+            # TODO [feat] return structured exception data? #4
             self.rootElement.pythonErrorHandler(msg)  # pyright: ignore
             return  # don't call next animation frame so the loop stops
 
@@ -141,7 +153,7 @@ class CanvasManager:
         scaled_image = np.ravel(np.uint8(np.reshape(scaled_image, (h * w * d, -1)))).tobytes()
 
         pixels_proxy = create_proxy(scaled_image)
-        pixels_buf = pixels_proxy.getBuffer("u8clamped")
+        pixels_buf = pixels_proxy.getBuffer("u8clamped")  # pyright: ignore
         img_data = ImageData.new(pixels_buf.data, w, h)
 
         self.ctx.putImageData(img_data, 0, 0)

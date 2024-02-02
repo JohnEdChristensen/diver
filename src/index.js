@@ -1,17 +1,29 @@
 // catch errors before you run, setup your IDE to use tsserver:
 // @ts-check
 // read more: https://www.typescriptlang.org/docs/handbook/intro-to-js-ts.html
-// TODO convert TODOs in to gh issues?
 import DiverEditor from './editor/editor.js'
 import DiverVisual from './diverComponent.js'
 import { getElementOrError } from './utils.js'
 
 //initialze editor
-const editorContainer = getElementOrError("code-container")
-const diverEditor = new DiverEditor("", editorContainer)
+/**@type{DiverEditor} */
+const diverEditor = getElementOrError("diver-editor")
+
+//editor events
+diverEditor.addEventListener("userRunCode", () => {
+  runEditorSketch()
+})
+//site-wide events
+document.addEventListener('keydown', function(event) {
+  if (event.ctrlKey || event.key === 'Enter') {
+    event.preventDefault();
+  }
+  runEditorSketch()
+});
 
 //initialze user sketch
 let sketchFileName = getFileFromURL()
+
 
 //initialze diverVisual (handles running python and sketch output)
 const diverVisual = new DiverVisual()
@@ -45,8 +57,7 @@ diverVisual.addEventListener('sketchRan', e => {
 diverVisual.addEventListener('pythonError', e => {
   //@ts-ignore low priority
   addToOutput("There was a python error:\n" + e.detail, "error")
-  //TODO force output panel on
-
+  //TODO force output panel on #2
 });
 
 //put diverVisual onto the DOM
@@ -63,16 +74,42 @@ document.addEventListener('DOMContentLoaded', function() {
   //main buttons
   const runButton = getElementOrError('run-button')
   runButton.addEventListener('click', () => {
-    diverVisual.reloadSketchAndRun(diverEditor.getText());
+    runEditorSketch()
   })
   // initial panel setup
-  //TODO make output a child of code panel. see p5js editor for inspiration
+  //TODO make output a child of code panel. see p5js editor for inspiration #3
   panelToggleSetup()
 })
 
+
+//utilities
+function runEditorSketch() {
+  diverVisual.runSketchString(diverEditor.getText());
+}
+
 /**Inital setup of output and editor panels */
 function panelToggleSetup() {
+  //help modal setup
+  var helpModal = getElementOrError("helpModal");
+  var helpBtn = getElementOrError("helpBtn");
+  var closeSpan = getElementOrError("helpModalCloseBtn");
 
+  // When the user clicks the button, open the modal 
+  helpBtn.onclick = function() {
+    helpModal.style.display = "block";
+  }
+
+  // When the user clicks on <span> (x), close the modal
+  closeSpan.onclick = function() {
+    helpModal.style.display = "none";
+  }
+
+  // Close the modal if the user clicks anywhere outside of it
+  window.onclick = function(event) {
+    if (event.target == helpModal) {
+      helpModal.style.display = "none";
+    }
+  }
   const toggleCodeButton = getElementOrError('toggle-code-button');
   const collapsibleCode = getElementOrError('collapsible-code');
   const codeContainer = getElementOrError("code-container");
@@ -87,10 +124,11 @@ function panelToggleSetup() {
     codeContainer.style.visibility = collapsibleCode.classList.contains('collapse') ? "hidden" : "visible";
   });
 
-  // TODO: refactor this to have a function that can toggle, or force on/off
+  // TODO: refactor this to have a function that can toggle, or force on/off #3
   toggleOutputButton.addEventListener('click', () => {
     togglePanel(toggleOutputButton, collapsibleOutput, 'collapse', 'Output');
   });
+
 }
 /**Utility function to toggle elements and button text
  * @param {HTMLElement} button
@@ -140,4 +178,4 @@ async function reloadDiverSrc() {
 }
 globalThis.reloadDiver = reloadDiverSrc // expose to global scope for dev server
 //called from devserver when sketch src changes, great for editing sketches externally
-globalThis.reloadSketch = diverVisual.reloadSketchAndRun // expose to global scope for dev server
+globalThis.reloadSketch = () => { diverVisual.reloadSketchAndRun() } // expose to global scope for dev server

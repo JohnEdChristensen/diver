@@ -16,7 +16,8 @@ export class PyodideManager {
     let initPyodide = await loadPyodide()
     //initPyodide.setStdOut()
 
-    await initPyodide.loadPackage("numpy");//TODO remove numpy dependancy, figure out dynamic imports
+    await initPyodide.loadPackage("numpy");//TODO remove numpy dependancy, figure out dynamic imports #5
+    await initPyodide.loadPackage("https://files.pythonhosted.org/packages/2b/bd/1ea8dee0c005f090ce629307ae6d0b1fbb2dea71f5900956c1002feafa1b/proceso-0.0.14-py3-none-any.whl");//TODO remove numpy dependancy, figure out dynamic imports #5
     // await pyodide.loadPackage("micropip");//install mircopip to install other packages
     // const micropip = pyodide.pyimport("micropip");
     // await micropip.install("numpy");
@@ -29,7 +30,7 @@ export class PyodideManager {
      * @param {string} diverLibString
      * @param {string} diverRootId
      */
-  async installDiver(diverLibString, diverRootId) {
+  installDiver(diverLibString, diverRootId) {
     //pass javascript root ID of diver element
     diverLibString = `diverRootId = "${diverRootId}"\n` + diverLibString
     // Replace single backslash (\) with double backslashes (\\)
@@ -52,7 +53,7 @@ importlib.invalidate_caches() # Make sure Python notices the new .py file
       //console.log(install_diver_py)
       //let output = this.pyodide.runPython(install_diver_py);
       //
-      let output = await this.pyodide.runPythonAsync(install_diver_py)
+      let output = this.pyodide.runPython(install_diver_py)
       console.log("[PyodideManager] Installed diver. Output (if any):", output)
     } catch (err) {
       console.log("[PyodideManager] Error installing diver")
@@ -65,18 +66,18 @@ importlib.invalidate_caches() # Make sure Python notices the new .py file
   /**
      * @param {string} pythonCode
      */
-  async runPython(pythonCode) {
+  runPython(pythonCode) {
     console.log("[PyodideManager] Running Python Using Pyodide")
     // this should work to dynamically install packages, but it isn't... I'll manually install for now.
-    // TODO support dynamic package loading
+    // TODO [feat] support dynamic package loading #5
     // await pyodide.loadPackagesFromImports(pyCode,{messageCallback : (m)=>{console.log(m)}})
     try {
       //this try will not catch errors that happen in the js event loop of animation. 
       //It will only catch errors that happen during sketch definition.
-      //TODO unify error handling from CanvasManager and sketch
-      let output = await this.pyodide.runPythonAsync(pythonCode)
+      //TODO [style] unify error handling from CanvasManager and sketch
+      let output = this.pyodide.runPython(pythonCode)
       console.log("[PyodideManager] Pyodide Ran Python. Output(if any): " + output)
-      return output
+      return
     } catch (e) {
       // replace error message
       console.log("[PyodideManager] Python code failed: " + e)

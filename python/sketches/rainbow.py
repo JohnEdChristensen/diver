@@ -44,4 +44,4 @@ def update(canvas_manager: CanvasManager, time):
 
 
 # start the animation
-CanvasManager(update)
+CanvasManager(update, resetTime=False)

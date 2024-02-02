@@ -23874,29 +23874,51 @@ var everforestHighlightStyle = HighlightStyle.define([
 var everforest = [everforestTheme, syntaxHighlighting(everforestHighlightStyle)];
 
 // src/editor/editor.ts
-var DiverEditor = class {
+var DiverEditor = class extends HTMLElement {
   editorView;
-  constructor(initialDoc, parent) {
+  initialDoc;
+  constructor(initialDoc) {
+    super();
+    this.initialDoc = initialDoc;
+  }
+  raiseRunCodeEvent() {
+    console.log("User Running code via shortcut");
+    return this.dispatchEvent(new CustomEvent("userRunCode"));
+  }
+  async connectedCallback() {
+    if (!this.initialDoc) {
+      this.initialDoc = this.textContent ?? "";
+      this.textContent = "";
+    }
     const indentSize = 4;
     const customTabBinding = {
       key: "Tab",
       run: indentMore,
       shift: indentLess
     };
+    const runCodeBinding = {
+      //key: "Ctrl-Enter",
+      key: "Ctrl-Enter",
+      run: () => {
+        this.raiseRunCodeEvent();
+        return true;
+      }
+    };
     this.editorView = new EditorView({
-      doc: initialDoc,
+      doc: this.initialDoc,
       extensions: [
-        basicSetup,
         //visual 
         everforest,
         //language
         python(),
         //tab
-        keymap.of([customTabBinding]),
+        keymap.of([customTabBinding, runCodeBinding]),
         EditorState.tabSize.of(indentSize),
-        indentUnit.of(" ".repeat(indentSize))
+        indentUnit.of(" ".repeat(indentSize)),
+        // base setup, at the bottom so everything above overrides
+        basicSetup
       ],
-      parent
+      parent: this
     });
   }
   getText() {
@@ -23909,6 +23931,7 @@ var DiverEditor = class {
     this.editorView.dispatch(transaction);
   }
 };
+customElements.define("diver-editor", DiverEditor);
 export {
   DiverEditor as default
 };

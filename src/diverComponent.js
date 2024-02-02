@@ -46,8 +46,8 @@ export default class DiverVisual extends HTMLElement {
 
     this.#stopLoadingIndicator()
   }
-
   #getTemplate() {
+    // HTML 
     return `
     <style>
     #loader #spinner {
@@ -82,24 +82,31 @@ export default class DiverVisual extends HTMLElement {
   }
 
   /**
-   * Runs given python sketch source if given. 
-   * 
-   * Otherwise, attempts to reload the sketch file specified at 
-   * this.sketchFileName and Runs the reloaded sketch.
+   * Attempts to reload the sketch file specified at 
+   * `this.sketchFileName` and Runs the reloaded sketch.
    * Requires DiverVisual to be fully initialized
-   * @param {string} [sketchSrcString] - Optional - Python source string to run
    */
-  async reloadSketchAndRun(sketchSrcString) {
-    if (!sketchSrcString) {
-      if (!this.sketchFileName) {
-        throw Error("[DiverVisual] no sketch file provided, can't reload")
-      }
-      sketchSrcString = await this.#loadSketch(this.sketchFileName)
+  async reloadSketchAndRun() {
+    if (!this.sketchFileName) {
+      throw Error("[DiverVisual] no sketch file provided, can't reload")
     }
+    const sketchSrcString = await this.#loadSketch(this.sketchFileName)
+    if (sketchSrcString) {
+      this.runSketchString(sketchSrcString)
+    } else {
+      throw Error("[DiverVisual] Failed to load sketch")
+    }
+  }
+
+  /** Runs given sketch source string
+   * Requires DiverVisual to be fully initialized
+     * @param {string} sketchSrcString - Python source code string
+     */
+  runSketchString(sketchSrcString) {
     if (!this.#pyodideManager) {
       throw Error("[DiverVisual] Pyodide manager not setup. Called reload too early, or something has gone horribly wrong")
     }
-    await this.#runSketch(this.#pyodideManager, sketchSrcString)
+    this.#runSketch(this.#pyodideManager, sketchSrcString)
   }
 
   /** Loads all the resources that are needed
@@ -114,11 +121,11 @@ export default class DiverVisual extends HTMLElement {
         PyodideManager.createPyodideInstance()
       ])
       //install intial python dependencies
-      await pyodideManager.installDiver(diverLibString, this.id)
+      pyodideManager.installDiver(diverLibString, this.id)
+      console.log("[DiverVisual] loaded diver")
 
       //run the initial code example for the first time
-      await this.#runSketch(pyodideManager, sketchSrcString)
-      console.log("[DiverVisual] loaded diver")
+      this.#runSketch(pyodideManager, sketchSrcString)
       // save pyodideManager for future runs
       this.#pyodideManager = pyodideManager
     } catch (error) {
@@ -133,10 +140,10 @@ export default class DiverVisual extends HTMLElement {
    * @param {PyodideManager} pyodideManager
    * @param {string} sketchSrcString - python sketch string
    */
-  async #runSketch(pyodideManager, sketchSrcString) {
+  #runSketch(pyodideManager, sketchSrcString) {
     try {
       console.log("[DiverVisual] Running sketch..")
-      let output = await pyodideManager.runPython(sketchSrcString)
+      let output = pyodideManager.runPython(sketchSrcString)
       console.log("[DiverVisual] Sketch load succeded! Output (if any):" + output)
       //notify upstream of sketch contents
       this.dispatchEvent(new CustomEvent('sketchRan', {
