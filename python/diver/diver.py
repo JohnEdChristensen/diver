@@ -64,7 +64,9 @@ class CanvasManager:
                 self.canvas = cast(HTMLCanvasElement, document.createElement("canvas"))
                 self.canvas.id = "diver-canvas"
 
-                diverContainer = self.shadowRootElement.getElementById("diver-canvas-container")
+                diverContainer = self.shadowRootElement.getElementById(
+                    "diver-canvas-container"
+                )
                 if diverContainer is not None:
                     diverContainer.appendChild(self.canvas)
                 else:
@@ -116,7 +118,13 @@ class CanvasManager:
         except Exception as e:
             tb = traceback.extract_tb(e.__traceback__)
             last_call = tb[-1]  # Get the last call information
-            msg = "Error on line {}, in function {}".format(last_call.lineno, last_call.name) + "\n" + str(e)
+            msg = (
+                "Error on line {}, in function {}".format(
+                    last_call.lineno, last_call.name
+                )
+                + "\n"
+                + str(e)
+            )
             # TODO [feat] return structured exception data? #4
             self.rootElement.pythonErrorHandler(msg)  # pyright: ignore
             return  # don't call next animation frame so the loop stops
@@ -150,7 +158,9 @@ class CanvasManager:
         # update this in case it has changed
         self.canvas.width = w
         self.canvas.height = h
-        scaled_image = np.ravel(np.uint8(np.reshape(scaled_image, (h * w * d, -1)))).tobytes()
+        scaled_image = np.ravel(
+            np.uint8(np.reshape(scaled_image, (h * w * d, -1)))
+        ).tobytes()
 
         pixels_proxy = create_proxy(scaled_image)
         pixels_buf = pixels_proxy.getBuffer("u8clamped")  # pyright: ignore

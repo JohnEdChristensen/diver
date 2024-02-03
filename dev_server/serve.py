@@ -11,13 +11,14 @@ from threading import Timer
 PORT = 8002
 WEBSOCKET_PORT = 6780
 
-src_dir = Path(__file__).resolve().parent.parent / "src"
+root_dir = Path(__file__).resolve().parent.parent
+print("Servig files at ", root_dir)
 
 
 # Custom HTTPRequestHandler to inject JavaScript into HTML
 class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(src_dir), **kwargs)
+        super().__init__(*args, directory=str(root_dir), **kwargs)
 
     def end_headers(self):
         # Add headers to prevent caching
@@ -32,7 +33,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         print(self.path)
         if self.path.endswith(".html") or self.path == "/":
             self.path = "/index.html" if self.path == "/" else self.path
-            file_path = src_dir / self.path.strip("/")
+            file_path = root_dir / self.path.strip("/")
 
             # Check if the file exists and is an HTML file
             if file_path.is_file() and file_path.suffix == ".html":
@@ -79,7 +80,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 # HTTP Server for serving static files
 class HTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(src_dir), **kwargs)
+        super().__init__(*args, directory=str(root_dir), **kwargs)
 
 
 class TCPServerWithReuseAddr(socketserver.TCPServer):
@@ -96,7 +97,7 @@ reload_count = 0
 
 
 # WebSocket server for live reload
-async def reload_server(websocket, path):
+async def reload_server(websocket, _path):
     active_websockets.add(websocket)
     try:
         async for message in websocket:
@@ -160,7 +161,7 @@ current_loop = asyncio.get_event_loop()
 # Start the file watcher with the event loop reference
 event_handler = ReloadEventHandler(current_loop)
 observer = Observer()
-observer.schedule(event_handler, path=str(src_dir), recursive=True)
+observer.schedule(event_handler, path=str(root_dir), recursive=True)
 observer.start()
 
 # Run the WebSocket server

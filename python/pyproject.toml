@@ -1,5 +1,6 @@
 [tool.poetry]
 name = "diver"
+packages = [{include = "diver", from="python"}]
 version = "0.1.0"
 description = ""
 authors = ["John Christensen <johnedchristensen@gmail.com>"]
@@ -11,10 +12,7 @@ numpy = "^1.26.1"
 mypy = "^1.6.1"
 pyodide-py = "^0.24.1"
 webtypy = "^0.1.6"
-pyp5js = "^0.7.3"
-p5 = "^0.8.4"
 proceso = "^0.0.14"
-nptyping = "^2.5.0"
 
 [build-system]
 requires = ["poetry-core"]

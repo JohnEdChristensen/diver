@@ -1,8 +1,9 @@
+from numpy._typing import NDArray
 from proceso import Sketch
-from js import window
 from dataclasses import dataclass
 import math as m
-from typing import List, Optional
+from typing import List
+import numpy as np
 
 
 p5 = Sketch()
@@ -16,14 +17,15 @@ SCREEN_HEIGHT = 0
 
 def resize_screen():
     global SCREEN_WIDTH, SCREEN_HEIGHT, WIDTH, HEIGHT
-    if SCREEN_WIDTH == window.innerWidth and SCREEN_HEIGHT == window.innerHeight:
+    if SCREEN_WIDTH == p5.window_width and SCREEN_HEIGHT == p5.window_height:
         return
-    SCREEN_WIDTH, SCREEN_HEIGHT = window.innerWidth, window.innerHeight
+    SCREEN_WIDTH, SCREEN_HEIGHT = p5.window_width, p5.window_height
     margin_vertical = 50
     margin_horizontal = 50
     WIDTH = SCREEN_WIDTH - margin_horizontal * 2
     HEIGHT = SCREEN_HEIGHT - margin_vertical * 2
     p5.resize_canvas(SCREEN_WIDTH, SCREEN_HEIGHT)
+    print((SCREEN_WIDTH, SCREEN_HEIGHT), (WIDTH, HEIGHT))
 
 
 resize_screen()
@@ -36,7 +38,7 @@ class Point:
 
 
 def setup():
-    p5.create_canvas(window.innerWidth, window.innerHeight)
+    p5.create_canvas(p5.window_width, p5.window_height)
     p5.no_stroke()
     p5.clear()
     p5.fill(40, 200, 40)
@@ -56,34 +58,25 @@ def draw():
 
     # p5.rect(-WIDTH // 2, -HEIGHT // 2, WIDTH, HEIGHT)
 
+    # draw_triangles()
     # draw_atan()
     draw_atan2()
-    draw_triangles()
 
 
 def draw_atan2():
-    xs = range(-10, 11)
-    ys = range(-10, 11)
-    grid = [[int((m.atan2(-x, -y) / 2 + 0.5) * 100) for x in xs] for y in ys]
+    grid = [[100] * 10] * 10
+    xs = np.linspace(-10, 10)
+    ys = np.linspace(-10, 10)
+    X, Y = np.meshgrid(xs, ys)
+    grid = X * Y
     draw_grid(grid)
 
 
-def draw_grid(grid: List[List[int]], show_grid_lines=False, width: Optional[int] = None) -> None:
-    p5.push()
-    if width is None:
-        size = min(WIDTH, HEIGHT) // len(grid)
-    else:
-        size = width // len(grid)
-
-    if show_grid_lines is False:
-        p5.no_stroke()
-
-    for x, row in enumerate(grid):
-        for y, val in enumerate(row):
-            p5.fill(val)
-            p5.rect(x * size - WIDTH // 2, y * size - HEIGHT // 2, size, size)
-
-    p5.pop()
+def draw_grid(grid: NDArray, size=min(WIDTH, HEIGHT) / 10):
+    size = min(WIDTH, HEIGHT) / len(grid)
+    for (x, y), value in np.ndenumerate(grid):
+        p5.fill(value)
+        p5.rect(x * size - WIDTH // 2, y * size - HEIGHT // 2, size, size)
 
 
 def draw_atan():
@@ -109,19 +102,10 @@ def draw_triangles():
     num_triangles = 50
 
     mx = p5.mouse_x - SCREEN_WIDTH // 2
-    my = -1 * (p5.mouse_y - SCREEN_WIDTH // 2)
+    my = -1 * (p5.mouse_y - SCREEN_HEIGHT // 2)
     mAngle = m.atan2(my, mx)
     totalRotation = mAngle if p5.is_mouse_pressed else 2 * m.pi
     dTheta = (totalRotation) / num_triangles
-
-    p5.push()
-    p5.stroke(40, 200, 40)
-    p5.scale(1, -1)
-    p5.translate(-SCREEN_WIDTH // 2, -SCREEN_HEIGHT // 2)
-    mx = p5.mouse_x
-    my = p5.mouse_y
-    p5.line(mx, my, p5.pmouse_x, p5.pmouse_y)
-    p5.pop()
 
     for i in range(num_triangles):
         p1 = Point(-half_base, 0)
