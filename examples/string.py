@@ -148,4 +148,12 @@ onMouseDown_proxy = create_proxy(onMouseDown)
 onMouseMove_proxy = create_proxy(onMouseMove)
 onMouseUp_proxy = create_proxy(onMouseUp)
 
+text = document.getElementById("simulation-description")
+if text is None:
+    text = document.createElement("div")
+    text.id = "simulation-description"
+    text.textContent = "Click and drag string up/down"
+    document.body.appendChild(text)  # type: ignore
+
+
 cm.canvas.addEventListener("mousedown", create_proxy(onMouseDown))
