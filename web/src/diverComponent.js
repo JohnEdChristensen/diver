@@ -11,12 +11,12 @@ export default class DiverVisual extends HTMLElement {
     /** @type {string} */
     this.sketchFileName = this.getAttribute("sketch") ?? "examples/impossible_object.py"
     /** @type {string} */
-    this.diverSrcFileName = this.getAttribute("diverSrc") ?? "/src/diver.py"
+    this.diverSrcFileName = this.getAttribute("diverSrc") ?? "src/diver.py"
     console.log("[DiverVisual] Constructed webcomponent DiverVisual, id: " + this.id)
   }
 
   async connectedCallback() {
-    // error schecking
+    // error checking
     if (!this.id) {
       console.warn("[DiverVisual] No ID set on diver-visual component. \
         Setting default ID. If multiple diver-visual \

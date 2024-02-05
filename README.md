@@ -2,17 +2,13 @@
 **Work in progress :)**
 
 ## Examples
-
-### Interactive
-
-Examples:
 - [Using processo](https://johnedchristensen.github.io/diver/?filename=examples/processo_figure_8.py)
 - [Impossible Triangle](https://johnedchristensen.github.io/diver/?filename=examples/impossible_object.py)
 - [Rainbow Wave](https://johnedchristensen.github.io/diver/?filename=examples/rainbow.py)
 - [Swirling Squares](https://johnedchristensen.github.io/diver/?filename=examples/squares.py)
 - [Simulated String](https://johnedchristensen.github.io/diver/src/?filename=sketches/string.py)
 ## About
-A python package that aimes to make it easy to share interactive visuals online.
+A python package that aims to make it easy to share interactive visuals online.
 
 Uses Pyodide to run python directly in the browser, meaning code can be shared with others without any need to download/install/configure python. 
 
@@ -43,14 +39,13 @@ After making changes click "Run" or use Ctrl-Enter to run your code.
 
 [Get started](https://johnedchristensen.github.io/diver/?filename=examples/processo_simple_shapes.py) with a drawing example using p5js (via processo).
 ### p5.js
-> p5.js is a JavaScript library for creative coding, with a focus on making coding accessible and inclusive for artists, designers, educators, beginners, and anyone else! p5.js is free and open-source because we believe software, and the tools to learn it, should be accessible to everyone.vascript library
+> p5.js is a JavaScript library for creative coding, with a focus on making coding accessible and inclusive for artists, designers, educators, beginners, and anyone else! p5.js is free and open-source because we believe software, and the tools to learn it, should be accessible to everyone.
 https://p5js.org/
 
 p5.js is a great project, but is limited to using javascipt. Using Pyodide, python code can now run alongisde javascript code in your browser, and use all the functionality that p5.js offers. An additional library needs to handle translations between p5.js and python, and processo does just that!
 ### processo
 The [processo](https://github.com/nickmcintyre/proceso) lets you use [p5js](https://p5js.org/) from python.
-#### Example
-[Try it out](https://johnedchristensen.github.io/diver/?filename=examples/processo_simple_shapes.py)
+#### [Try it out](https://johnedchristensen.github.io/diver/?filename=examples/processo_simple_shapes.py)
 ```python
 from proceso import Sketch
 
@@ -80,18 +75,18 @@ for _ in range(10):
     p5.ellipse(0, 30, 20, 80)
     p5.rotate(p5.PI / 5)
 ```
-From processo documentation: 
+From processo documentation.
 Checkout more processo examples: https://proceso.cc/examples/creative_coding/
 
 ### Lower level APIs
 These methods are a bit more complex, but can be useful if you want to work more directly with your visuals.
 #### Pixel level drawing
-[This example (rainbow.py)](https://johnedchristensen.github.io/diver/src/?filename=rainbow.py) shows some basic usage. It specifies each pixel on the canvas, so you can draw anything you want directly this way. It isn't very performant this way, so the resolution needs to be pretty low to run smoothly.
+[This example (rainbow.py)](https://johnedchristensen.github.io/diver/?filename=examples/rainbow.py) shows some basic usage. It specifies each pixel on the canvas, so you can draw anything you want directly this way. It isn't very performant this way, so the resolution needs to be pretty low to run smoothly.
 
 
 #### 2D Canvas API
 
-[This example (squares.py)](https://johnedchristensen.github.io/diver/src/?filename=squares.py) draws to canvas using the JavaScript canvas API. This is much more performant than drawing pixel by pixel, and can run at higher resolutions/frame rates. To use this mode you'll need to know (or learn) how to use the [canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
+[This example (squares.py)](https://johnedchristensen.github.io/diver/?filename=exampels/squares.py) draws to canvas using the JavaScript canvas API. This is much more performant than drawing pixel by pixel, and can run at higher resolutions/frame rates. To use this mode you'll need to know (or learn) how to use the [canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
 
 
 ## Limitations
