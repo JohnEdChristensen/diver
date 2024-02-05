@@ -50,33 +50,34 @@ export default class DiverVisual extends HTMLElement {
     // HTML 
     return `
     <style>
-    #loader #spinner {
-      border: 4px solid var(--text-color,#555);
-      border-top: 4px solid var(--panel-color,#555);
-      border-radius: 50%;
-      width: 80px;
-      height: 80px;
-      margin: 20px;
-      animation: spin 2s linear infinite;
-    }
-    #loader span{
-      marin: auto;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
+      #loader{
+        margin: 80px;
       }
-
-      100% {
-        transform: rotate(360deg);
+      #loader #spinner {
+        border: 4px solid var(--text-color,#555);
+        border-top: 4px solid var(--panel-color,#555);
+        border-radius: 50%;
+        width: 160px;
+        height: 160px;
+        animation: spin 2s linear infinite;
       }
-    }
+      #label{
+        margin:20px;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
     <div id="diver-canvas-container"></div>
     <div id="loader">
       <div id="spinner"></div>
-      <span>Loading Python...</span>
+      <div id="label">Loading Python...</div>
     </div>
     `
   }

@@ -30,7 +30,7 @@ class Sketch(pSketch):
 
         self._update_system_variables()
 
-    # processo seems to not refresh self.window_width and height well
+    # proceso seems to not refresh self.window_width and height well
     def debug_screen(self, desc):
         print(f"{desc:20},js       :{window.innerWidth:4},{window.innerHeight:4}")
         print(f"{desc:20},p5 window:{self.window_width:4},{self.window_height:4}")

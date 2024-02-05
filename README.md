@@ -2,11 +2,11 @@
 **Work in progress :)**
 
 ## Examples
-- [Using processo](https://johnedchristensen.github.io/diver/?filename=examples/processo_figure_8.py)
+- [Using proceso](https://johnedchristensen.github.io/diver/?filename=examples/proceso_figure_8.py)
 - [Impossible Triangle](https://johnedchristensen.github.io/diver/?filename=examples/impossible_object.py)
 - [Rainbow Wave](https://johnedchristensen.github.io/diver/?filename=examples/rainbow.py)
 - [Swirling Squares](https://johnedchristensen.github.io/diver/?filename=examples/squares.py)
-- [Simulated String](https://johnedchristensen.github.io/diver/src/?filename=sketches/string.py)
+- [Simulated String](https://johnedchristensen.github.io/diver/?filename=examples/string.py)
 ## About
 A python package that aims to make it easy to share interactive visuals online.
 
@@ -19,7 +19,7 @@ It also can be served from a static website server, meaning it is simple to embe
 - [x] live reloading development server
 - [x] Render animated canvas/WebGL
 - [x] pythonic drawing API (with beginner/user friendly documentation/examples)
-    - [x] [processo](https://github.com/nickmcintyre/proceso) offers a great python binding for p5js. It is now installed by default.
+    - [x] [proceso](https://github.com/nickmcintyre/proceso) offers a great python binding for p5js. It is now installed by default.
     - Examples: https://proceso.cc/examples/creative_coding/simple_shapes
 - [x] Write code in browser
 - [-] in browser LSP features like inline docs, autocomplete, linting, type checking
@@ -37,15 +37,15 @@ The current state of the library is in very active development. Expect breaking 
 Use "Show Code" button to view/edit the code yourself!
 After making changes click "Run" or use Ctrl-Enter to run your code.
 
-[Get started](https://johnedchristensen.github.io/diver/?filename=examples/processo_simple_shapes.py) with a drawing example using p5js (via processo).
+[Get started](https://johnedchristensen.github.io/diver/?filename=examples/proceso_figure_8.py) with a drawing example using p5js (via proceso).
 ### p5.js
 > p5.js is a JavaScript library for creative coding, with a focus on making coding accessible and inclusive for artists, designers, educators, beginners, and anyone else! p5.js is free and open-source because we believe software, and the tools to learn it, should be accessible to everyone.
 https://p5js.org/
 
-p5.js is a great project, but is limited to using javascipt. Using Pyodide, python code can now run alongisde javascript code in your browser, and use all the functionality that p5.js offers. An additional library needs to handle translations between p5.js and python, and processo does just that!
-### processo
-The [processo](https://github.com/nickmcintyre/proceso) lets you use [p5js](https://p5js.org/) from python.
-#### [Try it out](https://johnedchristensen.github.io/diver/?filename=examples/processo_simple_shapes.py)
+p5.js is a great project, but is limited to using JavaScript. Using Pyodide, python code can now run alongside JavaScript code in your browser, and use all the functionality that p5.js offers. An additional library needs to handle translations between p5.js and python, and proceso does just that!
+### proceso
+The [proceso](https://github.com/nickmcintyre/proceso) lets you use [p5js](https://p5js.org/) from python.
+#### [Try it out](https://johnedchristensen.github.io/diver/?filename=examples/proceso_simple_shapes.py)
 ```python
 from proceso import Sketch
 
@@ -75,8 +75,8 @@ for _ in range(10):
     p5.ellipse(0, 30, 20, 80)
     p5.rotate(p5.PI / 5)
 ```
-From processo documentation.
-Checkout more processo examples: https://proceso.cc/examples/creative_coding/
+From proceso documentation.
+Checkout more proceso examples: https://proceso.cc/examples/creative_coding/
 
 ### Lower level APIs
 These methods are a bit more complex, but can be useful if you want to work more directly with your visuals.
