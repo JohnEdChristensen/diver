@@ -2,10 +2,7 @@
   "name": "diver",
   "version": "1.0.0",
   "description": "Make visualizations with python that are simple to share on the web",
-  "main": "src/index.js",
-  "scripts": {
-    "serve": "browser-sync start --server 'src' --files 'src/*' --ignore 'src/*.ts' --no-ui"
-  },
+  "scripts": {},
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -22,6 +19,6 @@
     "@codemirror/theme-one-dark": "github:codemirror/theme-one-dark",
     "browser-sync": "^3.0.2",
     "codemirror": "^6.0.1",
-    "pyodide": "^0.24.1"
+    "pyodide": "^0.25.0"
   }
 }

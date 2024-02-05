@@ -74,7 +74,9 @@ def map_value(value, range1_min, range1_max, range2_min, range2_max):
     return range2_min + (percent_of_range_1 * range2)
 
 
-def value_to_color(value, min_value, max_value, exponential=0.99) -> Tuple[int, int, int, int]:
+def value_to_color(
+    value, min_value, max_value, exponential=0.99
+) -> Tuple[int, int, int, int]:
     # value_range = max_value-min_value
     # if abs(value) < min_value + (value_range * .001):
     # # if value==0:

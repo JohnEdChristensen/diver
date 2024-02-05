@@ -2,7 +2,6 @@
 //import { loadPyodide } from "pyodide";
 export class PyodideManager {
 
-
   /** Don't use the default constructor to initalize this class. 
    * Use PyodideManager.createPyodideInstance
    * @param {import("pyodide").PyodideInterface} pyodide
@@ -16,6 +15,7 @@ export class PyodideManager {
     let initPyodide = await loadPyodide()
     //initPyodide.setStdOut()
 
+    await initPyodide.loadPackage("typing-extensions");//TODO remove numpy dependancy, figure out dynamic imports #5
     await initPyodide.loadPackage("numpy");//TODO remove numpy dependancy, figure out dynamic imports #5
     await initPyodide.loadPackage("https://files.pythonhosted.org/packages/2b/bd/1ea8dee0c005f090ce629307ae6d0b1fbb2dea71f5900956c1002feafa1b/proceso-0.0.14-py3-none-any.whl");//TODO remove numpy dependancy, figure out dynamic imports #5
     // await pyodide.loadPackage("micropip");//install mircopip to install other packages

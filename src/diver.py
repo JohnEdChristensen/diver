@@ -1,7 +1,6 @@
 import traceback
 from dataclasses import dataclass
 from typing import List, Tuple, cast
-from proceso.math.calculation import Calculation as p5_calc
 
 import numpy as np
 from js import (  # pyright: ignore

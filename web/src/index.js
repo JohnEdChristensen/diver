@@ -15,10 +15,10 @@ diverEditor.addEventListener("userRunCode", () => {
 })
 //site-wide events
 document.addEventListener('keydown', function(event) {
-  if (event.ctrlKey || event.key === 'Enter') {
+  if (event.ctrlKey && event.key === 'Enter') {
     event.preventDefault();
+    runEditorSketch()
   }
-  runEditorSketch()
 });
 
 //initialze user sketch

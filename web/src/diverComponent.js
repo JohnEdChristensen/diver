@@ -9,9 +9,9 @@ export default class DiverVisual extends HTMLElement {
   constructor() {
     super()
     /** @type {string} */
-    this.sketchFileName = this.getAttribute("sketch") ?? "/python/sketches/impossible_object.py"
+    this.sketchFileName = this.getAttribute("sketch") ?? "examples/impossible_object.py"
     /** @type {string} */
-    this.diverSrcFileName = this.getAttribute("diverSrc") ?? "/python/diver/diver.py"
+    this.diverSrcFileName = this.getAttribute("diverSrc") ?? "/src/diver.py"
     console.log("[DiverVisual] Constructed webcomponent DiverVisual, id: " + this.id)
   }
 
