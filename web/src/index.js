@@ -3,8 +3,7 @@
 // read more: https://www.typescriptlang.org/docs/handbook/intro-to-js-ts.html
 import DiverEditor from './editor/editor.js'
 import DiverVisual from './diverComponent.js'
-import { getElementOrError } from './utils.js'
-
+import { getElementOrError, compressAndEncodeToUrlSafeBase64, decodeAndDecompressFromUrlSafeBase64 } from './utils.js'
 //initialze editor
 /**@type{DiverEditor} */
 const diverEditor = getElementOrError("diver-editor")
@@ -21,17 +20,27 @@ document.addEventListener('keydown', function(event) {
   }
 });
 
-//initialze user sketch
-let sketchFileName = getFileFromURL()
-
 
 //initialze diverVisual (handles running python and sketch output)
 const diverVisual = new DiverVisual()
 diverVisual.id = "mainDiverVisual"
+
+//initialze user sketch
+const sketchFileName = getURLParam('filename')
+const sketchEncodedCompressed = getURLParam('b64Sketch')
+
 if (sketchFileName) {
   console.log("file requested from url: ", sketchFileName)
   diverVisual.sketchFileName = sketchFileName
+} else if (sketchEncodedCompressed) {
+  console.log("file encoded in URL, decoding/decompressing: ", sketchEncodedCompressed)
+
+  const sketchSrcString = decodeAndDecompressFromUrlSafeBase64(sketchEncodedCompressed)
+  console.log("decoded decompressed: ", sketchSrcString)
+  diverEditor.setText(sketchSrcString)
+  diverVisual.rawSrcString = sketchSrcString
 }
+
 
 //update the editor everytime diverVisual loads a new sketch
 diverVisual.addEventListener('sketchLoaded', e => {
@@ -72,7 +81,7 @@ outputPanelContent.textContent = "Initializing...\n"
 /**setup that requires the DOM to be loaded */
 document.addEventListener('DOMContentLoaded', function() {
   //main buttons
-  const runButton = getElementOrError('run-button')
+  const runButton = getElementOrError('runButton')
   runButton.addEventListener('click', () => {
     runEditorSketch()
   })
@@ -90,27 +99,59 @@ function runEditorSketch() {
 /**Inital setup of output and editor panels */
 function panelToggleSetup() {
   //help modal setup
-  var helpModal = getElementOrError("helpModal");
-  var helpBtn = getElementOrError("helpBtn");
-  var closeSpan = getElementOrError("helpModalCloseBtn");
 
-  // When the user clicks the button, open the modal 
-  helpBtn.onclick = function() {
-    helpModal.style.display = "block";
-  }
+  const shareButton = getElementOrError("shareButton")
+  const copyToClipboardLink = getElementOrError("copyToClipboardLink")
+  const longShareLink = getElementOrError("longShareLink")
+  copyToClipboardLink.addEventListener('click', function() {
+    copyTextToClipboard(longShareLink.textContent)
+    copyToClipboardLink.textContent = "Copied!"
+  })
 
-  // When the user clicks on <span> (x), close the modal
-  closeSpan.onclick = function() {
-    helpModal.style.display = "none";
-  }
+  shareButton.addEventListener('click', function() {
+    console.log("creating shareable link")
+    const sketchSrcString = diverEditor.getText()
+    const compressedEncodedSrc = compressAndEncodeToUrlSafeBase64(sketchSrcString);
+    console.log("uncompressed source length: ", sketchSrcString.length)
+    console.log("compressed/encoded length: ", compressedEncodedSrc.length)
+    const shareURL = window.location.host + "/?b64Sketch=" + compressedEncodedSrc
+    longShareLink.textContent = shareURL
+  })
 
-  // Close the modal if the user clicks anywhere outside of it
-  window.onclick = function(event) {
-    if (event.target == helpModal) {
-      helpModal.style.display = "none";
+  setupModal(getElementOrError("helpModal"), getElementOrError("helpButton"), getElementOrError("helpModalCloseBtn"))
+  setupModal(getElementOrError("shareModal"), shareButton, getElementOrError("shareModalCloseBtn"))
+
+  /**
+   * @param {HTMLElement} modalContainer
+   * @param {HTMLElement} modalLaunchButton
+   * @param {HTMLElement} modalCloseButton
+   */
+  function setupModal(modalContainer, modalLaunchButton, modalCloseButton) {
+    // When the user clicks the button, open the modal 
+    modalLaunchButton.onclick = function() {
+      for (let e of document.getElementsByClassName("modal")) {
+        e.style.display = "none"
+      }
+      modalContainer.style.display = "block";
     }
+
+    // When the user clicks on <span> (x), close the modal
+    modalCloseButton.onclick = function() {
+      modalContainer.style.display = "none";
+    }
+
   }
-  const toggleCodeButton = getElementOrError('toggle-code-button');
+  // Close the modal if the user clicks anywhere outside of it
+  window.onclick = function(/** @type{Event} */event) {
+    /** @type{HTMLElement}*/
+    //@ts-ignore
+    const target = event.target
+    if (target.classList.contains("modal"))
+      target.style.display = "none";
+  }
+
+
+  const toggleCodeButton = getElementOrError('toggleCodeButton');
   const collapsibleCode = getElementOrError('collapsible-code');
   const codeContainer = getElementOrError("code-container");
 
@@ -128,6 +169,7 @@ function panelToggleSetup() {
   toggleOutputButton.addEventListener('click', () => {
     togglePanel(toggleOutputButton, collapsibleOutput, 'collapse', 'Output');
   });
+  console.log("finished UI setup")
 
 }
 /**Utility function to toggle elements and button text
@@ -142,16 +184,18 @@ function togglePanel(button, element, className, textContent) {
 }
 
 
-/**get a filename URL parameter if present
+/**
+ * get a filename URL parameter if present
+ * @param {string} paramName
  * @returns {string | null}
  */
-function getFileFromURL() {
+function getURLParam(paramName) {
   const currentUrl = window.location.href
   const url = new URL(currentUrl)
   const params = new URLSearchParams(url.search)
 
   //example URL "https://domain.com/page?filename=myfile.txt"
-  const fileName = params.get('filename') // This would be 'myfile.txt'
+  const fileName = params.get(paramName) // This would be 'myfile.txt'
   return fileName
 }
 
@@ -176,6 +220,22 @@ function addToOutput(text, style) {
 async function reloadDiverSrc() {
   window.location.reload()
 }
+
+/**
+ * @param {string | null} text
+ */
+function copyTextToClipboard(text) {
+  if (text) {
+    navigator.clipboard.writeText(text).then(function() {
+      console.log('Copying to clipboard was successful!');
+    }, function(err) {
+      console.error('Could not copy text: ', err);
+    });
+  }
+}
+
 globalThis.reloadDiver = reloadDiverSrc // expose to global scope for dev server
 //called from devserver when sketch src changes, great for editing sketches externally
 globalThis.reloadSketch = () => { diverVisual.reloadSketchAndRun() } // expose to global scope for dev server
+
+

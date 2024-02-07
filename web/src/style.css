@@ -74,13 +74,38 @@ input[type="submit"]:hover {
   color: var(--background-color);
 }
 
-#about-button {
+#aboutButton {
   background-color: var(--accent-2);
 }
 
-#about-button:hover {
+#aboutButton:hover {
   background-color: var(--accent-2-bg);
-  color: var(--background-color);
+}
+
+#helpButton {
+  background-color: var(--yellow);
+  color: var(--background-color)
+}
+
+#helpButton:hover {
+  background-color: var(--orange);
+}
+
+#shareButton {
+  background-color: var(--aqua);
+  color: var(--background-color)
+}
+
+#shareButton:hover {
+  background-color: var(--accent-2-bg);
+}
+
+a {
+  color: var(--green)
+}
+
+#longShareLink {
+  font-size: 10px;
 }
 
 /* tooltip */
@@ -146,10 +171,12 @@ input[type="submit"]:hover {
 
 .modal-content {
   background-color: var(--panel-color);
-  margin: 15% auto;
+  margin: 10vh auto;
   padding: 20px;
   border: 1px solid var(--border-color);
   width: 80%;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .closeBtn {
@@ -164,6 +191,13 @@ input[type="submit"]:hover {
   color: var(--red);
   text-decoration: none;
   cursor: pointer;
+}
+
+#longShareLink {
+  line-break: anywhere;
+  margin: 5px;
+  max-height: 100px;
+  overflow: scroll;
 }
 
 /* bar */

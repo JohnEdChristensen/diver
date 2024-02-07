@@ -10,6 +10,8 @@ export default class DiverVisual extends HTMLElement {
     super()
     /** @type {string} */
     this.sketchFileName = this.getAttribute("sketch") ?? "examples/impossible_object.py"
+    /** @type {string | null} - overrides sketchFileName if set*/
+    this.rawSrcString = this.innerText
     /** @type {string} */
     this.diverSrcFileName = this.getAttribute("diverSrc") ?? "src/diver.py"
     console.log("[DiverVisual] Constructed webcomponent DiverVisual, id: " + this.id)
@@ -31,8 +33,8 @@ export default class DiverVisual extends HTMLElement {
                     This will break things! Use unique ID attributes for each element")
     }
 
-    if (!this.sketchFileName) {
-      throw Error("[DiverVisual] No sketch file available, pass as a `sketch` attribute in HTML, or set this.dynamicFileName before DOM load")
+    if (!this.sketchFileName && !this.rawSrcString) {
+      throw Error("[DiverVisual] No sketch file available, pass as a `sketch` attribute in HTML, or set innerHTML to src,or set this.rawSrcString before DOM load")
     }
     //Add HTML elements
     let shadowRoot = this.attachShadow({ mode: "open" })
@@ -121,6 +123,7 @@ export default class DiverVisual extends HTMLElement {
         this.#loadDiverSrc(diverSrcFileName),
         PyodideManager.createPyodideInstance()
       ])
+      console.log("[DiverVisual] install Diver")
       //install intial python dependencies
       pyodideManager.installDiver(diverLibString, this.id)
       console.log("[DiverVisual] loaded diver")
@@ -197,6 +200,9 @@ export default class DiverVisual extends HTMLElement {
      * @returns {Promise<string>}
      */
   async #loadSketch(sketchFileName) {
+    if (this.rawSrcString) {
+      return this.rawSrcString
+    }
     console.log("[DiverVisual] attempting to load " + sketchFileName)
     try {
       let response = await fetch(sketchFileName)

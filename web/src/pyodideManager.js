@@ -1,4 +1,5 @@
 //@ts-check
+import "https://cdn.jsdelivr.net/pyodide/v0.23.2/full/pyodide.js"
 //import { loadPyodide } from "pyodide";
 export class PyodideManager {
 
@@ -11,13 +12,14 @@ export class PyodideManager {
   }
   /**Initialize a pyodide instance*/
   static async createPyodideInstance() {
+    console.log("[PyodideManager] Start Creating Pyodide Instance")
     // @ts-ignore Not sure why, but can't import pyodide
     let initPyodide = await loadPyodide()
     //initPyodide.setStdOut()
 
-    await initPyodide.loadPackage("typing-extensions");//TODO remove numpy dependancy, figure out dynamic imports #5
-    await initPyodide.loadPackage("numpy");//TODO remove numpy dependancy, figure out dynamic imports #5
-    await initPyodide.loadPackage("https://files.pythonhosted.org/packages/2b/bd/1ea8dee0c005f090ce629307ae6d0b1fbb2dea71f5900956c1002feafa1b/proceso-0.0.14-py3-none-any.whl");//TODO remove numpy dependancy, figure out dynamic imports #5
+    console.log("[PyodideManager] Pyodide loaded, installing modules")
+    await initPyodide.loadPackage(["typing-extensions", "numpy", "dist/proceso-0.0.14-py3-none-any.whl"]);//TODO remove numpy dependancy, figure out dynamic imports #5
+    //TODO remove numpy dependancy, figure out dynamic imports #5
     // await pyodide.loadPackage("micropip");//install mircopip to install other packages
     // const micropip = pyodide.pyimport("micropip");
     // await micropip.install("numpy");

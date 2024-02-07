@@ -5,7 +5,6 @@
   <title>diver.py</title>
   <link rel="icon" type="image/x-icon" href="web/favicon.ico">
 
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.2/full/pyodide.js"></script>
   <!-- <script src="pyodide/pyodide.js"></script> -->
   <link rel="stylesheet" href="web/src/style.css">
 </head>
@@ -13,12 +12,12 @@
 <body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <div id="bar">
-    <button id="run-button" title="Ctrl-Enter">Run</button>
+    <button id="runButton" title="Ctrl-Enter">Run</button>
     <button onclick="location.reload()">Reset</button>
-    <button id="toggle-code-button">Show Code </button>
-    <button id="about-button" onclick="location.href='https://github.com/JohnEdChristensen/diver#about'">About</button>
+    <button id="toggleCodeButton">Show Code </button>
+    <button id="aboutButton" onclick="location.href='https://github.com/JohnEdChristensen/diver#about'">About</button>
 
-    <button id="helpBtn">Help</button>
+    <button id="helpButton">Help</button>
     <div id="helpModal" class="modal">
       <div class="modal-content">
         <span id="helpModalCloseBtn" class="closeBtn">&times;</span>
@@ -30,6 +29,37 @@
               <li><kbd>Ctrl-Space</kbd> - Open Autocomplete dropdown</li>
             </ul>
           </li>
+      </div>
+    </div>
+    <button id="shareButton">Share</button>
+    <div id="shareModal" class="modal">
+      <div class="modal-content">
+        <span id="shareModalCloseBtn" class="closeBtn">&times;</span>
+        <h2>Quick, easy link (very long)</h2>
+        <a href="#" id="copyToClipboardLink">Copy link to clipboard</a>
+        <div id="longShareLink">Something went wrong, link not loaded...file and issue here, and include your code:
+          https://github.com/JohnEdChristensen/diver/issues</div>
+
+        <h2>A short link</h2>
+        Work in progress... planning to add support for storing file on github/lab
+        <!-- Diver can't store your sketch, but you can create a shareable link if you save your sketch somewhere else!
+        <ul>
+          <li>github-gist</li>
+          <ul>
+            <li>https://gist.github.com/</li>
+            <li>Copy paste your code</li>
+            <li>create gist</li>
+            <li>copy shareable link</li>
+          </ul>
+          <li>paste-bin (no need to sign in)</li>
+          <ul>
+            <li>https://pastebin.com/</li>
+            <li>Copy paste your code</li>
+            <li>No need to fill in any other fields</li>
+            <li>"Create New Paste" bottom of screen</li>
+            <li>copy link from address bar</li>
+          </ul>
+        </ul> -->
       </div>
     </div>
   </div>
