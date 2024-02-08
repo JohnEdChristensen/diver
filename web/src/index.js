@@ -114,7 +114,7 @@ function panelToggleSetup() {
     const compressedEncodedSrc = compressAndEncodeToUrlSafeBase64(sketchSrcString);
     console.log("uncompressed source length: ", sketchSrcString.length)
     console.log("compressed/encoded length: ", compressedEncodedSrc.length)
-    const shareURL = window.location.host + "diver/?b64Sketch=" + compressedEncodedSrc
+    const shareURL = window.location.host + "/diver/?b64Sketch=" + compressedEncodedSrc
     longShareLink.textContent = shareURL
   })
 
