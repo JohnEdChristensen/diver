@@ -15,16 +15,15 @@ Uses Pyodide to run python directly in the browser, meaning code can be shared w
 It also can be served from a static website server, meaning it is simple to embed visuals on personal websites/blogs.
 
 ## Features
-- [x] Render static images to a canvas element
-- [x] live reloading development server
-- [x] Render animated canvas/WebGL
-- [x] pythonic drawing API (with beginner/user friendly documentation/examples)
+- [x] Run and share python code with no installation/setup
+- [x] Easily share code via a link
+- [x] Write code in browser
+- [x] auto realoading to optionally edit files locally with any edtor
+- [x] Render animated canvas
     - [x] [proceso](https://github.com/nickmcintyre/proceso) offers a great python binding for p5js. It is now installed by default.
     - Examples: https://proceso.cc/examples/creative_coding/simple_shapes
-- [x] Write code in browser
 - [-] in browser LSP features like inline docs, autocomplete, linting, type checking
 - [ ] Human friendly documentation (with live running/editable examples of course)
-- [ ] Share feature. Generate link to custom sketches
 - [ ] Embedding mode, for embedding in blog posts, etc.
 - [ ]? Collaborative editing/ 1 way live sharing 
     - Only planning to do this if it doesn't require hosting a server. Currently looking into yjs + CodeMirror
