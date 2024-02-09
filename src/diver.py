@@ -1,8 +1,9 @@
+import sys
 import traceback
 from dataclasses import dataclass
 from typing import List, Tuple, cast
-
 import numpy as np
+
 from js import (  # pyright: ignore
     CanvasRenderingContext2D,
     HTMLCanvasElement,

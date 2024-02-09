@@ -1,19 +1,28 @@
 [tool.poetry]
 name = "diver"
 version = "0.1.0"
-description = ""
+description = "A toolkit for making visuals that run in the browser"
 authors = ["John Christensen <johnedchristensen@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"
 numpy = "^1.26.1"
-mypy = "^1.6.1"
 pyodide-py = "^0.24.1"
-webtypy = "^0.1.6"
 proceso = "^0.0.14"
+watchdog = "^3.0.0"
+websockets ="^12.0"
+
+[tool.poetry.dev-dependencies]
+webtypy = "^0.1.6"
+mypy = "^1.6.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry.scripts]
+diver_serve = "serve:main"
+
+[tool.poetry.extras]
+local = ["watchdog","websockets"]

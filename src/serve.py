@@ -7,12 +7,25 @@ from watchdog.events import FileSystemEventHandler
 import websockets
 from pathlib import Path
 from threading import Timer
+import webbrowser
+import argparse
+
+####
+# creates a local server that watches a python sketch file for changes. When the file
+# changes, the website will refresh the code, but not refresh the entire site.
+# this makes it much faster to iterate on changes (close to instant)
+####
+
+
+# This(whole file) is pretty hacky, there is certainly a cleaner way to do this... but it
+# works fine for now
 
 PORT = 8002
 WEBSOCKET_PORT = 6780
 
 root_dir = Path(__file__).resolve().parent.parent
 print("Servig files at ", root_dir)
+user_path = "../examples"
 
 
 # Custom HTTPRequestHandler to inject JavaScript into HTML
@@ -29,8 +42,9 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         self.path = self.path.split("?")[0]
+
         # Check if the requested path is an HTML file or root
-        print(self.path)
+        # print(self.path)
         if self.path.endswith(".html") or self.path == "/":
             self.path = "/index.html" if self.path == "/" else self.path
             file_path = root_dir / self.path.strip("/")
@@ -49,6 +63,21 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(modified_html.encode("utf-8"))
                 return
+        elif self.path.split("/")[1] == "user_file":
+            # print(f"requested path: {self.path}")
+            user_python_file_name = self.path.split("/")[2]
+            relative_path = user_path + "/" + user_python_file_name
+            self.path = os.path.abspath(relative_path)
+            # Read and modify the HTML content
+            with open(self.path, "r", encoding="utf-8") as file:
+                content = file.read()
+            # Send the response
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.send_header("Content-Length", str(len(content.encode("utf-8"))))
+            self.end_headers()
+            self.wfile.write(content.encode("utf-8"))
+            return
 
         # Handle other requests normally
         super().do_GET()
@@ -76,38 +105,26 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         # Insert the JavaScript before the closing </body> tag
         return html_content.replace("</body>", js_code + "</body>")
 
-
-# HTTP Server for serving static files
-class HTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(root_dir), **kwargs)
+    # turn off messages, because they are noisy, and not relevant here.
+    # TODO add a verbose flag
+    def log_message(self, format, *args):
+        return
 
 
 class TCPServerWithReuseAddr(socketserver.TCPServer):
     allow_reuse_address = True
 
 
-# Start the HTTP server
-httpd = TCPServerWithReuseAddr(("", PORT), CustomHTTPRequestHandler)
-print(f"Serving at http://localhost:{PORT}")
-http_server_thread = asyncio.get_event_loop().run_in_executor(None, httpd.serve_forever)
-
-active_websockets = set()
-reload_count = 0
-
-
 # WebSocket server for live reload
-async def reload_server(websocket, _path):
+async def reload_server(websocket, _):
     active_websockets.add(websocket)
-    try:
-        async for message in websocket:
-            # Handle messages if needed
-            pass
-    finally:
-        active_websockets.remove(websocket)
-
-
-start_server = websockets.serve(reload_server, "localhost", WEBSOCKET_PORT)
+    # if we need to handle messages from websocket:
+    # try:
+    #     async for message in websocket:
+    #         # Handle messages if needed
+    #         pass
+    # finally:
+    active_websockets.remove(websocket)
 
 
 class ReloadEventHandler(FileSystemEventHandler):
@@ -130,6 +147,9 @@ class ReloadEventHandler(FileSystemEventHandler):
         elif file_extension == ".py":
             if file_name == "diver.py":
                 message = "diver_reload"
+            if file_name == "serve.py":
+                print("server file changed, restart server to test changes")
+                return
             else:
                 message = "sketch_reload"
         else:
@@ -155,15 +175,49 @@ class ReloadEventHandler(FileSystemEventHandler):
             await ws.send(message)
 
 
-# Get the current event loop
-current_loop = asyncio.get_event_loop()
+active_websockets = set()
+reload_count = 0
 
-# Start the file watcher with the event loop reference
-event_handler = ReloadEventHandler(current_loop)
-observer = Observer()
-observer.schedule(event_handler, path=str(root_dir), recursive=True)
-observer.start()
 
-# Run the WebSocket server
-current_loop.run_until_complete(start_server)
-current_loop.run_forever()
+def main():
+    global user_path
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "python_sketch", type=str, help="This file will be run in the browser, and monitored for changes"
+    )
+    args = parser.parse_args()
+    sketch_path = args.python_sketch
+    print(sketch_path)
+    abs_sketch_path = os.path.abspath(sketch_path)
+    print(abs_sketch_path)
+    sketch_file = os.path.basename(abs_sketch_path)
+    print(sketch_file)
+    user_path = os.path.dirname(abs_sketch_path)
+    print(user_path)
+    # Start the HTTP server
+    httpd = TCPServerWithReuseAddr(("", PORT), CustomHTTPRequestHandler)
+    url = f"http://localhost:{PORT}/?filename=user_file/{sketch_file}"
+    print(f"Serving at {url}")
+    webbrowser.open(url)
+
+    asyncio.get_event_loop().run_in_executor(None, httpd.serve_forever)
+
+    start_server = websockets.serve(reload_server, "localhost", WEBSOCKET_PORT)
+
+    # Get the current event loop
+    current_loop = asyncio.get_event_loop()
+
+    # Start the file watcher with the event loop reference
+    event_handler = ReloadEventHandler(current_loop)
+    observer = Observer()
+    observer.schedule(event_handler, path=str(root_dir), recursive=True)
+    observer.schedule(event_handler, path=str(sketch_path))
+    observer.start()
+
+    # Run the WebSocket server
+    current_loop.run_until_complete(start_server)
+    current_loop.run_forever()
+
+
+if __name__ == "__main__":
+    main()

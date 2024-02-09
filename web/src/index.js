@@ -18,6 +18,11 @@ document.addEventListener('keydown', function(event) {
     event.preventDefault();
     runEditorSketch()
   }
+  if (event.ctrlKey && event.key === 's') {
+    event.preventDefault();
+    console.log("trying to save")
+    //sessionStorage.setItem('currentSketch', diverEditor.getText());
+  }
 });
 
 
@@ -28,7 +33,11 @@ diverVisual.id = "mainDiverVisual"
 //initialze user sketch
 const sketchFileName = getURLParam('filename')
 const sketchEncodedCompressed = getURLParam('b64Sketch')
-
+// const sessionSketchSrc = sessionStorage.getItem("currentSketch")
+// if (sessionSketchSrc) {
+//   diverEditor.setText(sessionSketchSrc)
+//   diverVisual.rawSrcString = sessionSketchSrc
+// } else 
 if (sketchFileName) {
   console.log("file requested from url: ", sketchFileName)
   diverVisual.sketchFileName = sketchFileName
@@ -83,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
   //main buttons
   const runButton = getElementOrError('runButton')
   runButton.addEventListener('click', () => {
+    //sessionStorage.setItem('currentSketch', diverEditor.getText());
     runEditorSketch()
   })
   // initial panel setup
