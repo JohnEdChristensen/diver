@@ -59,7 +59,9 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 # Send the response
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
-                self.send_header("Content-Length", str(len(modified_html.encode("utf-8"))))
+                self.send_header(
+                    "Content-Length", str(len(modified_html.encode("utf-8")))
+                )
                 self.end_headers()
                 self.wfile.write(modified_html.encode("utf-8"))
                 return
@@ -119,12 +121,12 @@ class TCPServerWithReuseAddr(socketserver.TCPServer):
 async def reload_server(websocket, _):
     active_websockets.add(websocket)
     # if we need to handle messages from websocket:
-    # try:
-    #     async for message in websocket:
-    #         # Handle messages if needed
-    #         pass
-    # finally:
-    active_websockets.remove(websocket)
+    try:
+        async for message in websocket:
+            # Handle messages if needed
+            pass
+    finally:
+        active_websockets.remove(websocket)
 
 
 class ReloadEventHandler(FileSystemEventHandler):
@@ -147,7 +149,7 @@ class ReloadEventHandler(FileSystemEventHandler):
         elif file_extension == ".py":
             if file_name == "diver.py":
                 message = "diver_reload"
-            if file_name == "serve.py":
+            elif file_name == "serve.py":
                 print("server file changed, restart server to test changes")
                 return
             else:
@@ -183,7 +185,9 @@ def main():
     global user_path
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "python_sketch", type=str, help="This file will be run in the browser, and monitored for changes"
+        "python_sketch",
+        type=str,
+        help="This file will be run in the browser, and monitored for changes",
     )
     args = parser.parse_args()
     sketch_path = args.python_sketch

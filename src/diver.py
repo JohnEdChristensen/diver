@@ -14,6 +14,222 @@ from js import (  # pyright: ignore
 from pyodide.ffi import create_proxy
 
 
+from proceso import Sketch as procesoSketch
+from typing import TypedDict
+from typing_extensions import Unpack
+from enum import Enum, auto
+import time
+
+SCREEN_WIDTH = SCREEN_HEIGHT = WIDTH = HEIGHT = 0
+
+
+class Origin(Enum):
+    CENTER = auto()
+    TOP_LEFT = auto()
+
+
+class SketchConfig(TypedDict, total=False):
+    margin: int
+    auto_fill_screen: bool
+    origin: Origin
+
+
+print("Hello from diver setup")
+
+
+@dataclass
+class Sketch(procesoSketch):
+    """proceso wrapper class with helpers"""
+
+    def __init__(self, **options: Unpack[SketchConfig]):
+        print("starting diver sketch")
+        super().__init__()
+        self.margin = options.get("margin", 50)
+        self.origin = options.get("origin", Origin.CENTER)
+        self.auto_fill_screen = options.get("auto_fill_screen")
+
+        self._update_system_variables()
+
+        self.world_offset_x = 0
+        self.world_offset_y = 0
+        self.world_zoom_scale = 1
+        self.diver_draw_end_time = time.time()
+
+    # proceso seems to not refresh self.window_width and height well
+    def debug_screen(self, desc):
+        self.push()
+        # print(f"{desc:20},js       :{window.innerWidth:4},{window.innerHeight:4}")
+        # print(f"{desc:20},p5 window:{self.window_width:4},{self.window_height:4}")
+        # print(f"{desc:20},p5 canvas:{self.width:4},{self.height:4}")
+
+        # print(self.screen_left, self.screen_middle_x, self.screen_right)
+        # print(self.screen_bottom, self.screen_middle_y, self.screen_top)
+        # Axis
+        self.stroke("green")
+        self.stroke_weight(5)
+        self.line(
+            self.screen_left + 1,
+            self.screen_top,
+            self.screen_left + 1,
+            self.screen_bottom,
+        )
+        self.line(
+            0,
+            self.screen_top,
+            0,
+            self.screen_bottom,
+        )
+        self.line(
+            self.screen_right - 1,
+            self.screen_top,
+            self.screen_right - 1,
+            self.screen_bottom,
+        )
+
+        self.stroke("red")
+        self.line(
+            self.screen_left,
+            self.screen_top - 1,
+            self.screen_right,
+            self.screen_top - 1,
+        )
+        self.line(
+            self.screen_left,
+            0,
+            self.screen_right,
+            0,
+        )
+        self.line(
+            self.screen_left, self.screen_bottom, self.screen_right, self.screen_bottom
+        )
+
+        self.pop()
+
+    def square_draw_area(self):
+        """set the width and height as large as possible while still square"""
+        figure_width = window.innerWidth - 2 * self.margin
+        figure_height = window.innerHeight - 2 * self.margin
+
+        # Make a square drawing area, based on the smaller dimension
+        self.figure_width = min(figure_width, figure_height)
+        self.figure_height = figure_width
+        self.figure_bottom = -self.figure_height // 2
+        self.figure_top = self.figure_height // 2
+        self.figure_left = -self.figure_width // 2
+        self.figure_right = self.figure_width // 2
+
+    def fill_screen(self):
+        # print(self.world_zoom_scale)
+        # init
+        self.screen_bottom = -1 * window.innerHeight / 2
+        self.screen_top = window.innerHeight / 2
+        self.screen_left = -1 * window.innerWidth / 2
+        self.screen_right = window.innerWidth / 2
+
+        if self.width != window.innerWidth or self.height != window.innerHeight:
+            print("resizing canvas")
+            self.resize_canvas(window.innerWidth, window.innerHeight)
+
+    def setup_screen(self):
+        self.fill_screen()
+        self.square_draw_area()
+
+        if self.origin == Origin.CENTER:
+            self.translate(self.width // 2, self.height // 2)
+            self.scale(1, -1)
+
+        # TODO make sure this works in both oriing modes
+        self.translate(self.world_offset_x, self.world_offset_y)
+
+        # TODO IMPORTANT Fix this... Grid lines should still work when moving
+        self.screen_top -= self.world_offset_y
+        self.screen_bottom -= self.world_offset_y
+        self.screen_left -= self.world_offset_x
+        self.screen_right -= self.world_offset_x
+        # self.screen_middle_y = (self.screen_top + self.screen_bottom) // 2
+        # self.screen_middle_x = (self.screen_left + self.screen_right) // 2
+
+        s = 1 / self.world_zoom_scale
+        self.screen_bottom *= s
+        self.screen_top *= s
+        self.screen_left *= s
+        self.screen_right *= s
+
+    def apply_zoom(self, s):
+        self.world_zoom_scale = self.world_zoom_scale * s
+        self.world_zoom_scale = max(min(self.world_zoom_scale, 2.0), 0.1)
+        # print(self.world_zoom_scale)
+        # world_mouse_x = self.mouse_x - self.width // 2
+        # world_mouse_y = -1 * (self.mouse_y - self.height // 2)
+        # self.world_offset_x = world_mouse_x * (1 - s) + self.world_offset_x * s
+        # self.world_offset_y = world_mouse_y * (1 - s) + self.world_offset_y * s
+        # print(self.world_offset_x, self.world_offset_y)
+        # print(world_mouse_x, world_mouse_y)
+
+    def text(
+        self,
+        txt: str,
+        x: float,
+        y: float,
+        x2: float | None = None,
+        y2: float | None = None,
+    ) -> None:
+        """Override p5js text to handle flipping y axis for text"""
+        self.push()
+        if self.origin == Origin.CENTER:
+            self.scale(1, -1)
+            y = -y
+            if y2 is not None:
+                y2 = -y2
+        super().text(txt, x, y, x2, y2)
+        self.pop()
+        return
+
+    def diver_setup(self):
+        self.setup_screen()
+        self.user_setup()
+
+    def diver_draw(self):
+        # print(f"time between loop: {self.diver_draw_end_time - time.time()}")
+        self.diver_start_draw_time = time.time()
+        speed = 10
+        if self.key_is_down(self.RIGHT_ARROW):  # type: ignore
+            self.world_offset_x -= speed
+        if self.key_is_down(self.LEFT_ARROW):  # type: ignore
+            self.world_offset_x += speed
+        if self.key_is_down(self.UP_ARROW):  # type: ignore
+            self.world_offset_y -= speed
+        if self.key_is_down(self.DOWN_ARROW):  # type: ignore
+            self.world_offset_y += speed
+
+        # setup world units
+        self.setup_screen()
+        self.scale(self.world_zoom_scale)
+
+        # print(f"diver setup time: {self.diver_start_draw_time - time.time()}")
+        # self.debug_screen("draw")
+        # finally call user's draw
+        self.user_draw_start_time = time.time()
+        self.user_draw()
+        self.diver_draw_end_time = time.time()
+        # print(
+        #     f"user draw  time: {self.user_draw_start_time - self.diver_draw_end_time}"
+        # )
+
+    def mouse_wheel(self, event):
+        scale = 1.05 if event.deltaY > 0 else 0.95
+
+        self.apply_zoom(scale)
+
+    def start(self, user_setup, user_draw):
+        self.user_setup = user_setup
+        self.user_draw = user_draw
+
+        self.run_sketch(
+            setup=self.diver_setup, draw=self.diver_draw, mouse_wheel=self.mouse_wheel
+        )
+
+
 @dataclass
 class Color:
     r: int
