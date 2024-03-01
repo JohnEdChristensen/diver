@@ -1,5 +1,45 @@
 # Diver
-**Work in progress :)**
+
+Diver is a tool that makes it easy to create dynamic and interactive works of art with code.
+
+![example code](./examples/assets/processo_example.png)
+
+- Create visual python programs in your browser
+- Everything runs locally on your machine
+- Easily share your works of art with others
+- Actively being developed (As of Feb. 2024), If you run into anything confusing [please let me know!](https://github.com/JohnEdChristensen/diver/issues/new)
+
+## Why
+You don't need to understand what's under the hood to use Diver, but some details on how it works is useful to understand if this project is right for you.
+
+[Can't wait to write your first line of code? Jump ahead and get started!](#basics)
+
+### Run python anywhere
+Diver runs python code directly in your browser. This means you can try it out without needing to install or set anything up! What does "in your browser" mean? It means that running your python code is just as easy as visiting a website. You can access your code on all your devices that can visit websites. Your phone, work computer, laptop, friends laptop, etc. That's convenient! 
+
+### It's your code, on your computer
+One important distinction here is that even though it runs in the browser, it's running in *your* browser, not off somewhere in the cloud. All the code is being executed locally on your computer. If you lose connection to the internet, your sketch will keep running just fine. 
+
+Want to bring your laptop out to a cabin in the woods with no internet? You can cozy up next to the fireplace and keep playing with your code!
+
+## Use Cases
+Running Python in the browser has some really nice benefits! But It's not always the right option. Here are some good use cases for using python in the browser.
+
+### A tool for new programmers
+Learning to program is fun! Configuring your computer to be able to actually run your first line of code is less fun. It's not the worst thing in the world, but it's not be best "first time programming" experience.
+
+Removing some of the complexity that comes along with learning a new skill is a great way to make learning that skill more accessible. It decreases the chance of people "bouncing off" learning something because they didn't quite make it over the initial frustrating learning curve.
+
+### A tool for teachers
+If you want to teach a group of students python, it could be a rough experience trying to get python, and packages, and an editor all setup on each student's computer. Having everything accessible as website means each student just needs to open a link to get started! No troubleshooting why python isn't in Jimmy's PATH.
+
+### A tool for seasoned developers
+Want to make some beautiful programmatically generated art? Try it out without needing to set anything up on your computer, and immediately share your work with others just by sending a link! You don't need to setup a server to share your art with your mom. Diver handles all that for you. (Seriously, send what you make to your mom. She'll love it)
+
+The site is totally static. So it can be served from a static website server, meaning it is simple to embed interactive python visuals on personal websites/blogs.
+
+It also means you can host your own version if you want. Simply fork this repository and enable github pages in the repo settings. That's it! Now you can edit the site however you want!
+
 
 ## Examples
 - [Using proceso](https://johnedchristensen.github.io/diver/?filename=examples/proceso_figure_8.py)
@@ -7,30 +47,6 @@
 - [Rainbow Wave](https://johnedchristensen.github.io/diver/?filename=examples/rainbow.py)
 - [Swirling Squares](https://johnedchristensen.github.io/diver/?filename=examples/squares.py)
 - [Simulated String](https://johnedchristensen.github.io/diver/?filename=examples/string.py)
-## About
-A python package that aims to make it easy to share interactive visuals online.
-
-Uses Pyodide to run python directly in the browser, meaning code can be shared with others without any need to download/install/configure python. 
-
-It also can be served from a static website server, meaning it is simple to embed visuals on personal websites/blogs.
-
-## Features
-- [x] Run and share python code with no installation/setup
-- [x] Easily share code via a link
-- [x] Write code in browser
-- [x] auto realoading to optionally edit files locally with any edtor
-- [x] Render animated canvas
-    - [x] [proceso](https://github.com/nickmcintyre/proceso) offers a great python binding for p5js. It is now installed by default.
-    - Examples: https://proceso.cc/examples/creative_coding/simple_shapes
-- [-] in browser LSP features like inline docs, autocomplete, linting, type checking
-- [ ] Human friendly documentation (with live running/editable examples of course)
-- [ ] Embedding mode, for embedding in blog posts, etc.
-- [ ]? Collaborative editing/ 1 way live sharing 
-    - Only planning to do this if it doesn't require hosting a server. Currently looking into yjs + CodeMirror
-
-## Usage
-The current state of the library is in very active development. Expect breaking changes.
-
 
 ## Basics
 Use "Show Code" button to view/edit the code yourself!
@@ -77,57 +93,10 @@ for _ in range(10):
 From proceso documentation.
 Checkout more proceso examples: https://proceso.cc/examples/creative_coding/
 
-### Lower level APIs
-These methods are a bit more complex, but can be useful if you want to work more directly with your visuals.
-#### Pixel level drawing
-[This example (rainbow.py)](https://johnedchristensen.github.io/diver/?filename=examples/rainbow.py) shows some basic usage. It specifies each pixel on the canvas, so you can draw anything you want directly this way. It isn't very performant this way, so the resolution needs to be pretty low to run smoothly.
+Using the proceso examples and the documentation at https://p5js.org/ should give you everything you need to make cool things! Note that when using the p5js documentation, you'll need to convert the p5js function names from javascript's standard `camelCase` to python's `snake_case`.
+
+Consider contributing to [proceso's documentation](https://github.com/nickmcintyre/proceso) if you'd like to help improve this!
 
 
-#### 2D Canvas API
 
-[This example (squares.py)](https://johnedchristensen.github.io/diver/?filename=exampels/squares.py) draws to canvas using the JavaScript canvas API. This is much more performant than drawing pixel by pixel, and can run at higher resolutions/frame rates. To use this mode you'll need to know (or learn) how to use the [canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
-
-
-## Offline (not well tested)
-in progress:
-- After diver is loaded, there is no longer any need to remain online. As long as your browser caches everthing it should be possi
-- let me know if there is interest in this! It should be pretty simple to package an offline application using something like Tauri, or make the site a PWA
-
-### Use your own editor
-
-
-TODO: make this process easier by putting the package on pypi. Let me know if there if you would like this to be easier
-
-
-You can run diver from your own computer and use whatever editor you would like!
-To start a local server, clone this repository,
-```
-git clone https://github.com/JohnEdChristensen/diver.git
-```
-enter the repo directory and install Diver using Poetry
-```
-cd diver
-poetry install
-```
-
-Now you can serve any python file to run in the browser using `diver_serve`
-```
-poetry run diver_serve ./examples/squares.py
-```
-When the file you are serving is edited, the web interface will reload the file automatically!
-
-## Limitations
-
-While many popular python packages run great in the browser, not all packages can. See https://Pyodide.org/en/stable/usage/packages-in-Pyodide.html for a list of packages that will work out of the box.
-
-## Development
-Want to run the site yourself?
-1. Use the local server mentioned in the offline section above. It will live reload the site when source files are changed.
-2. Everything except for the code edtor `src/editor/` runs without any build step, so it should just work by using `diver_serve`, or any basic webserver from the root directory.
-i.e. `python -m http.server
-
-
-Run specific sketch files either by using `diver_serve` or by setting a the `filename` url parameter to python file relative to the root repo directory.
-```
-0.0.0.0:8000?filename=examples/squares.py
-```
+Want to go deeper? Checkout [advanced usage](./advanced_usage.md)
